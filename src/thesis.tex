@@ -1,0 +1,73 @@
+\documentclass[thesis=M,english,hidelinks]{FITthesis}[2018/06/01]
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{graphicx}
+
+\usepackage{dirtree}
+
+\department{Department of Theoretical Computer Science}
+\title{Fine-tuning LLVM transformation passes}
+\authorGN{Tomáš} %author's given name/names
+\authorFN{Drbota} %author's surname
+\author{Tomáš Drbota} %author's name without academic degrees
+\authorWithDegrees{Bc. Tomáš Drbota} %author's name with academic degrees
+\supervisor{doc. Ing. Ivan Šimeček, Ph.D.}
+\acknowledgements{THANKS (remove entirely in case you do not with to thank anyone)}
+\abstractEN{Modern compilers provide a wide range of different optimizations in an effort to increase the performance of the resulting program. Many of them also provide a way to customize the level of optimization (as an example -O flags in the GCC toolchain, or in-line attributes for loop unrolling), but the granularity of these approaches is low.
+	
+The purpose of this work is to explore and analyze options for customizing the execution of transformation passes in the LLVM compiler system. The intent is to create ways for the user to be able to specifically declare which transformations should or should not be used in a given scope, e.g. function. The majority of the implementation will be done on the closely related LLVM C/C++ frontend, Clang. This fine-tuned code will then be compared to automatically optimized code, and the results analyzed.}
+\abstractCS{V n{\v e}kolika v{\v e}t{\' a}ch shr{\v n}te obsah a p{\v r}{\' i}nos t{\' e}to pr{\' a}ce v {\v c}esk{\' e}m jazyce.}
+\placeForDeclarationOfAuthenticity{Prague}
+\keywordsCS{Replace with comma-separated list of keywords in Czech.}
+\keywordsEN{llvm, clang, compiler, transformation, optimization}
+\declarationOfAuthenticityOption{5}
+% \website{http://site.example/thesis} %optional thesis URL
+
+
+\begin{document}
+
+\setsecnumdepth{part}
+\chapter{Introduction}
+Text will go here.
+
+
+\setsecnumdepth{all}
+\chapter{State-of-the-art}
+
+\chapter{Analysis and design}
+
+\chapter{Realisation}
+
+\setsecnumdepth{part}
+\chapter{Conclusion}
+
+
+\bibliographystyle{iso690}
+\bibliography{mybibliographyfile}
+
+\setsecnumdepth{all}
+\appendix
+
+\chapter{Acronyms}
+\begin{description}
+	\item[todo] TODO
+\end{description}
+
+
+\chapter{Contents of enclosed CD}
+
+\begin{figure}
+	\dirtree{%
+		.1 readme.txt\DTcomment{the file with CD contents description}.
+		.1 exe\DTcomment{the directory with executables}.
+		.1 src\DTcomment{the directory of source codes}.
+		.2 wbdcm\DTcomment{implementation sources}.
+		.2 thesis\DTcomment{the directory of \LaTeX{} source codes of the thesis}.
+		.1 text\DTcomment{the thesis text directory}.
+		.2 thesis.pdf\DTcomment{the thesis text in PDF format}.
+		.2 thesis.ps\DTcomment{the thesis text in PS format}.
+	}
+\end{figure}
+
+\end{document}
