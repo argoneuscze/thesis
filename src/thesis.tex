@@ -7,17 +7,17 @@
 \usepackage{dirtree}
 
 \department{Department of Theoretical Computer Science}
-\title{Fine-tuning LLVM transformation passes}
+\title{Fine-tuning LLVM IR transformation passes}
 \authorGN{Tomáš} %author's given name/names
 \authorFN{Drbota} %author's surname
 \author{Tomáš Drbota} %author's name without academic degrees
 \authorWithDegrees{Bc. Tomáš Drbota} %author's name with academic degrees
 \supervisor{doc. Ing. Ivan Šimeček, Ph.D.}
-\acknowledgements{THANKS (remove entirely in case you do not with to thank anyone)}
-\abstractEN{Modern compilers provide a wide range of different optimizations in an effort to increase the performance of the resulting program. Many of them also provide a way to customize the level of optimization (as an example -O flags in the GCC toolchain, or in-line attributes for loop unrolling), but the granularity of these approaches is low.
+\acknowledgements{TODO}
+\abstractEN{Modern compilers provide a wide range of different optimizations in an effort to increase the performance of the resulting program. Many of them already offer ways to customize the amount of optimization - for example -O flags in GCC, compiler arguments (e.g. -finline-functions in Clang) or in-line attributes (e.g. \#pragma unroll), but the overall granularity of these options is low.
 	
-The purpose of this work is to explore and analyze options for customizing the execution of transformation passes in the LLVM compiler system. The intent is to create ways for the user to be able to specifically declare which transformations should or should not be used in a given scope, e.g. function. The majority of the implementation will be done on the closely related LLVM C/C++ frontend, Clang. This fine-tuned code will then be compared to automatically optimized code, and the results analyzed.}
-\abstractCS{V n{\v e}kolika v{\v e}t{\' a}ch shr{\v n}te obsah a p{\v r}{\' i}nos t{\' e}to pr{\' a}ce v {\v c}esk{\' e}m jazyce.}
+The purpose of this work is to investigate options for further customizing the execution of transformation passes in an optimizing compiler and comparing the results to automatically optimized code. The intent is to ensure there are ways for the user to be able to specifically declare which transformations should or should not be used in a given scope. Implementation is done using LLVM and its C/C++ frontend, Clang.}
+\abstractCS{TODO}
 \placeForDeclarationOfAuthenticity{Prague}
 \keywordsCS{Replace with comma-separated list of keywords in Czech.}
 \keywordsEN{llvm, clang, compiler, transformation, optimization}
@@ -29,15 +29,35 @@ The purpose of this work is to explore and analyze options for customizing the e
 
 \setsecnumdepth{part}
 \chapter{Introduction}
-Text will go here.
-
+TODO
 
 \setsecnumdepth{all}
-\chapter{State-of-the-art}
+\chapter{LLVM architecture}
+\cite{Lattner:MSThesis02}
 
-\chapter{Analysis and design}
+\section{Intermediate Representation}
 
-\chapter{Realisation}
+
+\chapter{Clang frontend}
+
+\chapter{Optimizations using LLVM}
+\section{Analysis passes}
+
+\section{Transformation passes}
+
+\section{Basic optimizations}
+
+\section{Loop optimizations}
+\subsection{Loop unrolling}
+
+\section{Advanced loop optimizations using Polly}
+\subsection{Loop tiling}
+
+\section{External optimizations using opt tool}
+
+\chapter{Fine-tuning transformations, implementation}
+
+\chapter{Result evaluation}
 
 \setsecnumdepth{part}
 \chapter{Conclusion}
