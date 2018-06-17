@@ -7,7 +7,7 @@
 \usepackage{dirtree}
 
 \department{Department of Theoretical Computer Science}
-\title{Fine-tuning LLVM IR transformation passes}
+\title{Fine-tuning LLVM optimizations}
 \authorGN{Tomáš} %author's given name/names
 \authorFN{Drbota} %author's surname
 \author{Tomáš Drbota} %author's name without academic degrees
@@ -24,44 +24,35 @@ The purpose of this work is to investigate options for further customizing the e
 \declarationOfAuthenticityOption{5}
 % \website{http://site.example/thesis} %optional thesis URL
 
-
 \begin{document}
 
 \setsecnumdepth{part}
 \chapter{Introduction}
-TODO
+\input{chapters/introduction}
+
+\addtocontents{toc}{\setcounter{tocdepth}{2}}
 
 \setsecnumdepth{all}
+\part{Background}
 \chapter{LLVM architecture}
-\cite{Lattner:MSThesis02}
-
-\section{Intermediate Representation}
-
-
-\chapter{Clang frontend}
+\input{chapters/llvm}
 
 \chapter{Optimizations using LLVM}
-\section{Analysis passes}
+\input{chapters/llvm_optimizations}
 
-\section{Transformation passes}
+\part{Fine-tuning optimizations}
+\chapter{Design}
+\input{chapters/design}
 
-\section{Basic optimizations}
+\chapter{Implementation}
+\input{chapters/implementation}
 
-\section{Loop optimizations}
-\subsection{Loop unrolling}
-
-\section{Advanced loop optimizations using Polly}
-\subsection{Loop tiling}
-
-\section{External optimizations using opt tool}
-
-\chapter{Fine-tuning transformations, implementation}
-
-\chapter{Result evaluation}
+\chapter{Evaluation}
+\input{chapters/evaluation}
 
 \setsecnumdepth{part}
 \chapter{Conclusion}
-
+\input{chapters/conclusion}
 
 \bibliographystyle{iso690}
 \bibliography{mybibliographyfile}

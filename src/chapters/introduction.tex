@@ -1,0 +1,13 @@
+A large part of modern compilers is composed of various optimizations meant to either make the resulting program run faster, be smaller in size, or a compromise between these two. The problem is - how do you decide which optimizations to use, how, and in which order? Some optimizations may depend on others, some might be mutually exclusive, and some might even change semantics of the program itself in order to achieve faster processing speed. All these considerations have to be made by someone - in most cases the compiler itself.
+
+But in specific scenarios - for example certain architectures or hardware, and even on specific problems, the compiler may not be able to make an optimal decision by itself. Furthermore, certain optimizations may alter the semantics of the program, which could be an unwanted side effect and might lead to unexpected results during execution.
+
+In such cases, it's up to the programmer to specify which optimizations should be run, optionally along with detailed arguments for them. The problem is, there is currently no universal way to specify most of them in the code itself. There are exceptions, such as \texttt{\#pragma loop} attributes (in C/C++ code) to specify loop unrolling options, but currently, the only way to truly fine-tune all the optimizations is to use the built-in \texttt{opt} tool, which only works on a module level, and depending on your needs, its usage can be unnecessarily verbose.
+
+The purpose of this work is to investigate possibilities of extending this functionality into the code itself, and to provide more granularity in its application, i.e. allow the programmer to specify its scope, instead of having to apply it to the entire module.
+
+Thus, the first part of the thesis focuses on introducing the framework itself, namely LLVM and Clang. I will describe how the compiler currently works and what kind of optimizations it is capable of, optionally if there already exists any way to influence them.
+
+The second part will then expand upon this base, and will focus on designing and implementing a general approach to "hint" the compiler what optimizations it should run, in which scope, and with what parameters.
+
+After these improvements are implemented, I'm going to benchmark my code with these new customized optimizations, and compare the results to what the compiler would produce on its own.
