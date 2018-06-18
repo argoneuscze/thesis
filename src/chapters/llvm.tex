@@ -1,6 +1,40 @@
-TODO \cite{Lattner:MSThesis02}
+LLVM \cite{Lattner:MSThesis02}, formerly known as \emph{Low-Level Virtual Machine} is "a collection of modular and reusable compiler and toolchain technologies" \cite{llvm_web}. Originally intended as a compiler infrastructure well-suited for modern programming languages, it has since grown into an umbrella term for a decently large group of sub-projects, intended for building everything related to compilers, that is frontends, backends, optimizers, Just-In-Time compilers etc. Some of these sub-projects will be discussed later in the chapter.
+
+Today, LLVM is a popular choice for TODO
+
+This work will be using LLVM and its toolset exclusively.
+
 \section{Structure}
+Written in C++, at its core LLVM uses a classical three phase compilation process \cite{Lattner:LLVM_Design}, popular for static compilers. These three phases are namely the frontend, optimizer, and backend.
+
+The frontend is responsible for parsing and validating the source code, generally producing some sort of intermediate form. The optimizer then takes this form, and does various transformations to improve the code's running time, and is mostly independent of the target. Finally, the backend generates actual machine code specific to the architecture.
+
+The main benefit of this design is that a programmer writing source code doesn't need to worry about architecture specific assembly code or optimizations, and one code should work the same on every platform supported by the backend.
+
 \section{Intermediate Representation}
-\subsection{Attributes}
-\section{Compilation process}
+As I have mentioned in the previous section, all three phases during compilation work with some sort of intermediate code. In LLVM this internal assembly language is called \emph{Intermediate Representation} \cite{llvm_ir} (\emph{LLVM IR} for short, or just \emph{IR}), and it's arguably one of the most important parts of LLVM.
+
+LLVM IR is a well specified SSA (Static Single Assignment) based representation that provides type safety and various low-level operations. It is the only interface to LLVM's optimizer and is used throughout all phases of LLVM's compilation process.
+
+There are three different forms of LLVM IR, all of which are equivalent:
+\begin{itemize}
+	\item in-memory compiler IR
+	\item on-disk bitcode representation (e.g. for JIT)
+	\item a human readable assembly representation
+\end{itemize}
+
+The ability to have human readable IR is going to be extremely helpful, as it allows the developer to write or edit arbitrary IR and compile it to an executable file. This is difficult to do with other compilers, e.g. GCC's \emph{Gimple} only allows printing its intermediate form, but you cannot trivially edit and compile it to a functioning program.
+
+I am not going to go into large detail here regarding the exact structure of a well-formed IR module, but having an overview is going to be necessary for understanding the implementation.
+
+\subsection{Module}
+\subsection{Function}
+\subsubsection{Attributes}
+\subsection{Basic Block}
+\subsection{Instruction}
+\subsubsection{Metadata}
+
 \section{Clang}
+
+\section{Compilation process}
+normally machine code linker etc.
