@@ -28,11 +28,42 @@ The ability to have human readable IR is going to be extremely helpful, as it al
 I am not going to go into large detail here regarding the exact structure of a well-formed IR module, but having an overview is going to be necessary for understanding the implementation.
 
 \subsection{Module}
+An LLVM program is composed of one or more modules, which represent a translation unit of the input files. Modules consist of functions, global variables and symbol table entries. These module files can be further merged together (along with symbol resolution etc.) using the LLVM linker, but that's not required.
+
+Incidentally, the module level is where most of the current optimizations run on. That is, if you want to run a certain transformation pass on a function, the easiest solution is to use the \texttt{opt} tool and run it on the whole module.
+
 \subsection{Function}
+A function is normally a callable piece of code that returns some value, and in IR they are no different. Similarly to C, functions in IR consist of a definition and a declaration.
+
+Function definition uses the \texttt{define} keyword, and specifies a number of parameters. These, among others, include visibility style, calling convention, parameter list, return type, a function name, optional function attributes, metadata, and a list of basic blocks.
+
+Declarations are a bit more lightweight. They use the \texttt{declare} keyword, and share many parameters with function definitions, though they miss the actual bulk of the function, that is things such as basic blocks, attributes or metadata.
+
 \subsubsection{Attributes}
+Function attributes are used to describe additional information about a function. They are part of the definition, but not the declaration. Attributes are part of the function itself, not its type, therefore different functions can be of the same type, but have different attributes.
+
+Attributes will be used extensively throughout this work, as it is the most convenient way to communicate function-wide information to the optimizer. For example LLVM currently uses attributes to tell whether a function should be inlined or not.
+
+To use a function attribute in the IR, it is generally a keyword (or a list of keywords, space separated) placed after the function type specified.
+
 \subsection{Basic Block}
+Basic blocks are the foundation of functions, forming the Control Flow Graph (CFG) of the containing function.
+
+Each basic block contains a list of instructions, ending with a terminator function (e.g. branch or return). At the top of a basic block there can optionally be a label, giving this basic block a symbol table entry. If this label is not provided, it's automatically assigned one.
+
+A special case of a basic block is the first basic block of any given function. It is immediately executed upon entrance into the function, and it may not have any predecessors (i.e. branches into this basic block from another one).
+
 \subsection{Instruction}
+Each basic block is composed of different instructions. Memory allocation, stores, loads, unary/binary instructions, terminators. It is not necessary to go into detail for every single one, but for this work, the important part about instructions are metadata.
+
 \subsubsection{Metadata}
+Every instruction can have different metadata attached to it, which will be used extensively in my implementation. Metadata is commonly used inside LLVM for hinting the code generator and optimizer, for example whether a loop should be unrolled and how much.
+
+Metadata doesn't have a type, nor is it a value. There are two different types of metadata: strings and nodes.
+
+Metadata strings are simple strings surrounded by double quotes, which can contain any (even non-printable) character. This is useful for setting various flags on an instruction.
+
+Metadata nodes are similar, but other than a string they may also contain values. This is useful when you want to pass a specific parameter to an instruction, e.g. how many times a loop should be unrolled.
 
 \section{Clang}
 
