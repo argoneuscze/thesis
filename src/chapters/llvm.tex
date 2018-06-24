@@ -66,6 +66,19 @@ Metadata strings are simple strings surrounded by double quotes, which can conta
 Metadata nodes are similar, but other than a string they may also contain values. This is useful when you want to pass a specific parameter to an instruction, e.g. how many times a loop should be unrolled.
 
 \section{Clang}
+Clang \cite{llvm_clang} is part of the LLVM project and it's their frontend for C, C++, Objective-C and Objective-C++. It's integrated directly into the LLVM source code as a tool, making it easy to do and test any changes.
+
+I will be using Clang to help produce customized IR to convey information to the optimizer and backend.
 
 \section{Compilation process}
-normally machine code linker etc.
+[insert picture here]
+
+A standard compilation process can be described in a few steps.
+
+First, the frontend (in our case Clang) parses the source code and produces an AST (Abstract Syntax Tree), which is then converted into LLVM IR.
+
+This IR is then fed into the optimizer, which is a series of analysis and optimization passes. Depending on the optimization level, some, if not all of them, could be skipped. The result of this optimization is also IR, now hopefully running faster, taking less space, or both.
+
+After we have the optimized IR, the code generator processes it. For each IR instruction or a sequence of instructions, it emits native machine code for the given target architecture, producing an executable program.
+
+This is just the simplest procedure. There are more advanced things LLVM is capable of, such as link-time optimizations, which let LLVM optimize across e.g. file boundaries, by producing IR bitcode instead of native object files, letting LLVM aggregate them together and optimize a larger chunk.

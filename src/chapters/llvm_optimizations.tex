@@ -1,6 +1,31 @@
 \section{Overview}
+Optimizations are a large part of LLVM. As mentioned earlier, their role is to take existing IR, and produce faster and/or smaller IR, before handing it over to the backend.
+
+Optimizations in LLVM are implemented as what's called \texttt{Passes} \cite{llvm_passes}. LLVM passes are simply C++ classes that derive from the \texttt{Pass} class (usually one of its subclasses, e.g. \texttt{FunctionPass}).
+
+LLVM has what's called a \texttt{Pass Manager}, which is a class responsible for scheduling and running various passes on a given unit. It is there where the optimization level and various flags come into play.
+
+There are three distinct kinds of passes, \texttt{Analysis passes}, \texttt{Transformation passes} and \texttt{Utility passes}.
+
 \subsection{Analysis passes}
+An analysis pass is a pass that computes various information. This information may then be used for debugging, or it may be used to identify various patterns in a program, creating a higher level representation of it.
+
+An example...
+
 \subsection{Transformation passes}
+Transformation passes do actual modifications on the IR. They may use existing Analysis passes, possibly invalidating them, requiring new analysis.
+
+An example...
+
+\subsection{Utility passes}
+Utility passes are generally all passes that don't fit the former two categories.
+
+An example...
+
 \section{Standard process}
 \section{Polly}
+Polly \cite{llvm_polly} is an add-on optimizer for LLVM, providing high-level loop and data locality optimizations. It uses an abstract mathematical representation based on integer polyhedra for its analysis and optimizations.
+
+This is very helpful for example in programs using frameworks such as OpenMP, which is commonly used for parallelizing code including loops.
+
 \section{Examples}
