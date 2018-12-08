@@ -1,6 +1,8 @@
 # Exploring usage of non-negative matrix factorization in audio compression
 
-This repository stores the research and report part of my Master's thesis visible [here](https://github.com/argoneuscze/AudioNMF).
+This repository stores the research and report part of my Master's thesis.
+
+The implementation part is visible [**here**](https://github.com/argoneuscze/AudioNMF).
 
 ## TODO
 
