@@ -6,12 +6,12 @@ The implementation part is visible [**here**](https://github.com/argoneuscze/Aud
 
 ## Assignment (WIP)
 
-The aim of this work is to research existing methods for lossy audio compression and try to apply non-negative matrix factorization (NMF) in order
+The aim of this work is to research existing methods for lossy audio compression and apply non-negative matrix factorization (NMF) in order
 to improve the compression ratio without a noticeable loss in quality. Therefore, the goals are as following:
 
-1. Become familiar with state-of-the-art audio encoding and compression methods
-2. Become familiar with non-negative matrix factorization, its properties and applications
-3. Implement a proof of concept audio codec utilizing NMF for audio compression, or extend an existing codec with this functionality
+1. Become familiar with state of the art audio encoding and compression methods
+2. Become familiar with non-negative matrix factorization, its properties and applications in digital audio processing
+3. Design and implement a proof of concept audio codec utilizing NMF for audio compression, or extend an existing codec with this functionality
 4. Compare the results with an existing solution, try to measure quality difference
 
 ## TODO
@@ -36,3 +36,5 @@ to improve the compression ratio without a noticeable loss in quality. Therefore
 * [Nonnegative Matrix Factorization: A Comprehensive Review](https://ieeexplore.ieee.org/document/6165290)
 * [The Why and How of Nonnegative Matrix Factorization](https://arxiv.org/pdf/1401.5226.pdf)
 * [Introduction to Nonnegative Matrix Factorization](https://arxiv.org/pdf/1703.00663.pdf)
+* [Constrained Nonnegative Matrix Factorization with Applications to Music Transcription](https://cs.uwaterloo.ca/sites/ca.computer-science/files/uploads/files/cs-2014-27.pdf)
+* [Single-channel audio source separation with NMF: divergences, constraints and algorithms](https://hal.inria.fr/hal-01631185/document)
