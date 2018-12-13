@@ -6,12 +6,13 @@ The implementation part is visible [**here**](https://github.com/argoneuscze/Aud
 
 ## Assignment (WIP)
 
-The aim of this work is to research existing methods for lossy audio compression and try to use non-negative matrix factorization (NMF) in order
+The aim of this work is to research existing methods for lossy audio compression and try to apply non-negative matrix factorization (NMF) in order
 to improve the compression ratio without a noticeable loss in quality. Therefore, the goals are as following:
 
 1. Become familiar with state-of-the-art audio encoding and compression methods
 2. Become familiar with non-negative matrix factorization, its properties and applications
 3. Implement a proof of concept audio codec utilizing NMF for audio compression, or extend an existing codec with this functionality
+4. Compare the results with an existing solution, try to measure quality difference
 
 ## TODO
 
