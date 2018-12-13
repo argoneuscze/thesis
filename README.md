@@ -1,4 +1,4 @@
-# Exploring usage of non-negative matrix factorization in audio compression
+# Exploring usage of non-negative matrix factorization in lossy audio compression
 
 This repository stores the research and report part of my Master's thesis.
 
