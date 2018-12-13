@@ -36,5 +36,5 @@ to improve the compression ratio without a noticeable loss in quality. Therefore
 * [**Nonnegative Matrix Factorization: A Comprehensive Review**](https://ieeexplore.ieee.org/document/6165290)
 * [The Why and How of Nonnegative Matrix Factorization](https://arxiv.org/pdf/1401.5226.pdf)
 * [Introduction to Nonnegative Matrix Factorization](https://arxiv.org/pdf/1703.00663.pdf)
-* [Constrained Nonnegative Matrix Factorization with Applications to Music Transcription](https://cs.uwaterloo.ca/sites/ca.computer-science/files/uploads/files/cs-2014-27.pdf)
+* [**Constrained Nonnegative Matrix Factorization with Applications to Music Transcription**](https://cs.uwaterloo.ca/sites/ca.computer-science/files/uploads/files/cs-2014-27.pdf)
 * [**Single-channel audio source separation with NMF: divergences, constraints and algorithms**](https://hal.inria.fr/hal-01631185/document)
