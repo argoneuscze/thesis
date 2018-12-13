@@ -30,3 +30,6 @@
 
 # result built pdf in default folder
 src/thesis.pdf
+
+# other pdfs
+*.pdf
