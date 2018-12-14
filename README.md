@@ -1,22 +1,22 @@
-# Exploring usage of non-negative matrix factorization in lossy audio compression
+# Exploring use of non-negative matrix factorization for lossy audio compression
 
 This repository stores the research and report part of my Master's thesis.
 
 The implementation part is visible [**here**](https://github.com/argoneuscze/AudioNMF).
 
-## Assignment (WIP)
+## Assignment
 
-The aim of this work is to research existing methods for lossy audio compression and apply non-negative matrix factorization (NMF) in order
+The aim of this work is to research existing methods for lossy audio compression and to apply non-negative matrix factorization (NMF) in order
 to improve the compression ratio without a noticeable loss in quality. Therefore, the goals are as following:
 
-1. Become familiar with state of the art audio encoding and compression methods
+1. Become familiar with state of the art digital audio encoding and compression methods
 2. Become familiar with non-negative matrix factorization, its properties and applications in digital audio processing
 3. Design and implement a proof of concept audio codec utilizing NMF for audio compression, or extend an existing codec with this functionality
-4. Compare the results with an existing solution, try to measure quality difference
+4. Find a suitable method for measuring perceived audio quality
+5. Measure the resulting audio quality and compare the quality and compression ratio to existing solutions
 
 ## TODO
 
-* Finalize the topic
 * Abstract
 * Introduction
 * Research
@@ -37,4 +37,4 @@ to improve the compression ratio without a noticeable loss in quality. Therefore
 * [The Why and How of Nonnegative Matrix Factorization](https://arxiv.org/pdf/1401.5226.pdf)
 * [Introduction to Nonnegative Matrix Factorization](https://arxiv.org/pdf/1703.00663.pdf)
 * [**Constrained Nonnegative Matrix Factorization with Applications to Music Transcription**](https://cs.uwaterloo.ca/sites/ca.computer-science/files/uploads/files/cs-2014-27.pdf)
-* [**Single-channel audio source separation with NMF: divergences, constraints and algorithms**](https://hal.inria.fr/hal-01631185/document)
+* [Single-channel audio source separation with NMF: divergences, constraints and algorithms](https://hal.inria.fr/hal-01631185/document)
