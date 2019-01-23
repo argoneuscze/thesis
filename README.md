@@ -38,3 +38,6 @@ to improve the compression ratio without a noticeable loss in quality. Therefore
 * [Introduction to Nonnegative Matrix Factorization](https://arxiv.org/pdf/1703.00663.pdf)
 * [**Constrained Nonnegative Matrix Factorization with Applications to Music Transcription**](https://cs.uwaterloo.ca/sites/ca.computer-science/files/uploads/files/cs-2014-27.pdf)
 * [Single-channel audio source separation with NMF: divergences, constraints and algorithms](https://hal.inria.fr/hal-01631185/document)
+* [Spectral Audio Signal Processing](https://ccrma.stanford.edu/~jos/sasp/sasp.html)
+* [Audio compression using Modified discrete cosine transform: The MP3 coding standard](https://www.mp3-tech.org/programmer/docs/jacaba_main.pdf)
+* [Source Separation Tutorial Mini-Series II: Introduction to Non-Negative Matrix Factorization](https://ccrma.stanford.edu/~njb/teaching/sstutorial/part2.pdf)
