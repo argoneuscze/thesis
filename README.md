@@ -15,6 +15,22 @@ to improve the compression ratio without a noticeable loss in quality. Therefore
 4. Find a suitable method for measuring perceived audio quality
 5. Measure the resulting audio quality and compare the quality and compression ratio to existing solutions
 
+## Structure
+
+* Abstract
+* Introduction
+* Audio encoding
+  * Digital audio
+  * State of the art
+	* MDCT, STFT
+* NMF
+  * Motivation
+  * Application
+* Codec design
+* Implementation
+* Evaluating results
+* Conclusion
+
 ## TODO
 
 * Abstract
@@ -41,3 +57,4 @@ to improve the compression ratio without a noticeable loss in quality. Therefore
 * [Spectral Audio Signal Processing](https://ccrma.stanford.edu/~jos/sasp/sasp.html)
 * [Audio compression using Modified discrete cosine transform: The MP3 coding standard](https://www.mp3-tech.org/programmer/docs/jacaba_main.pdf)
 * [Source Separation Tutorial Mini-Series II: Introduction to Non-Negative Matrix Factorization](https://ccrma.stanford.edu/~njb/teaching/sstutorial/part2.pdf)
+* [**Object-based Audio Coding Using Non-negative Matrix Factorization for the Spectrogram Representation**](http://www.aes.org/e-lib/browse.cfm?elib=15380)
