@@ -9,20 +9,20 @@
 \usepackage{dirtree}
 
 \department{Department of Theoretical Computer Science}
-\title{Fine-tuning LLVM optimizations}
+\title{Exploring use of non-negative matrix factorization for lossy audio compression}
 \authorGN{Tomáš} %author's given name/names
 \authorFN{Drbota} %author's surname
 \author{Tomáš Drbota} %author's name without academic degrees
 \authorWithDegrees{Bc. Tomáš Drbota} %author's name with academic degrees
 \supervisor{doc. Ing. Ivan Šimeček, Ph.D.}
 \acknowledgements{TODO}
-\abstractEN{Modern compilers provide a wide range of different optimizations in an effort to increase the performance of the resulting program. Many of them already offer ways to customize the amount of optimization - for example -O flags in GCC, compiler arguments (e.g. -finline-functions in Clang) or in-line attributes (e.g. \#pragma unroll), but the overall granularity of these options is low.
-	
-The purpose of this work is to investigate options for further customizing the execution of transformation passes in an optimizing compiler and comparing the results to automatically optimized code. The intent is to ensure there are ways for the user to be able to specifically declare which transformations should or should not be used in a given scope. Implementation is done using LLVM and its C/C++ frontend, Clang.}
+\abstractEN{Non-negative matrix factorization has been successfully applied in various scenarios, mostly for analyzing large chunks of data and finding patterns in them for later use. Due to the nature of NMF, it has also seen some use in the field of image compression.
+
+The purpose of this thesis is to research possible uses of non-negative matrix factorization in the problem of audio compression. A reference audio encoder and decoder using NMF will be implemented and various experiments using this encoder will be conducted. The results will be measured and compared to existing audio compressing solutions.}
 \abstractCS{TODO}
 \placeForDeclarationOfAuthenticity{Prague}
-\keywordsCS{Replace with comma-separated list of keywords in Czech.}
-\keywordsEN{llvm, clang, compiler, transformation, optimization}
+\keywordsCS{TODO}
+\keywordsEN{lossy, audio, compression, processing, nmf, encoding}
 \declarationOfAuthenticityOption{5}
 % \website{http://site.example/thesis} %optional thesis URL
 
@@ -36,13 +36,13 @@ The purpose of this work is to investigate options for further customizing the e
 
 \setsecnumdepth{all}
 \part{Background}
-\chapter{LLVM architecture}
-\input{chapters/llvm}
+\chapter{Digital audio}
+\input{chapters/digital_audio}
 
-\chapter{Optimizations using LLVM}
-\input{chapters/llvm_optimizations}
+\chapter{Non-negative matrix factorization}
+\input{chapters/nmf}
 
-\part{Fine-tuning optimizations}
+\part{Audio compression using NMF}
 \chapter{Design}
 \input{chapters/design}
 

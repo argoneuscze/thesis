@@ -1,18 +1,1 @@
-\section{Current state}
-Currently, LLVM provides a large amount of optimization passes, and the easiest way to influence them is to use an optimization level flag, e.g. \texttt{-O3}. This provides an easy high-level way to specify, which sets of optimizations you want, but it is currently extremely difficult to e.g. optimize on a certain level, but excluding a specific pass, or vice versa, run at a lower level of optimization and add new passes.
-
-Alternatively, LLVM and Clang already have built-in support for certain actions, such as loop unrolling, but it is not currently flexible enough to trivially adapt to other optimizations, but it will serve as a good reference.
-
-\section{Clang frontend}
-The goal here is to create or use an existing way to feed optimization hints to the backend. Since I will be using C/C++ for the implementation, the easiest way is to use \texttt{\#pragma} statements, as LLVM already has support for parsing them.
-
-\subsection{Pragma}
-TODO specify how exactly they'll work
-
-\section{LLVM backend}
-Considering most of the backend is C++ based and works with LLVM IR, that's where I will be doing most of the work.
-
-I will be using IR attributes and metadata given by the frontend to influence the Pass Manager, and tailor the optimizations to my needs.
-
-\subsection{Pass Manager}
-TODO specify how exactly it will be changed
+\section{State of the art}
