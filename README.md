@@ -58,3 +58,4 @@ to improve the compression ratio without a noticeable loss in quality. Therefore
 * [Audio compression using Modified discrete cosine transform: The MP3 coding standard](https://www.mp3-tech.org/programmer/docs/jacaba_main.pdf)
 * [Source Separation Tutorial Mini-Series II: Introduction to Non-Negative Matrix Factorization](https://ccrma.stanford.edu/~njb/teaching/sstutorial/part2.pdf)
 * [**Object-based Audio Coding Using Non-negative Matrix Factorization for the Spectrogram Representation**](http://www.aes.org/e-lib/browse.cfm?elib=15380)
+* [GstPEAQ - an Open Source Implementation of the PEAQ Algorithm](https://www.ntnu.edu/documents/1001201110/1266017954/DAFx-15_submission_12.pdf)
