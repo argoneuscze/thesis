@@ -1,3 +1,73 @@
+Sound as we know it can be defined as a physical wave travelling through air or another means. \cite{you_2010} It can be measured as change in air pressure surrounding an object. Once we have this electrical representation of the wave, we can convert it back and consequently play using speakers.
+
+In the real world, these sound waves are generally composed of many different kinds of waves, with differing frequencies and amplitudes. The human ear can tell the difference between high (whistling) and low frequencies (drums), and knowledge of this will be useful later when we are discussing audio encoding.
+
+- TODO image of audio signal -
+
+\section{Important terms}
+.. TODO ..
+sampling
+nyquist frequency/limit
+quantization
+windowing
+
+\section{Digital audio representation}
+Most commonly, the amount of air pressure is sampled many times a second and after being processed this information is stored as a discrete-time signal using numerical representations - this is what's known as a \emph{digital audio signal}. This entire process is called \emph{digital audio encoding}.
+
+By sampling the audio signal, we will potentially be losing out on some information, but given a high enough sampling rate, the result will be imperceptible to the human ear. For general purpose audio and music, the standard sampling rate is 48 kHz, alternatively 44.1 kHz from the compact disk era.
+
+Once we have our digital signal, there are two distinct kinds of ways we can represent it. Both of them have many different data models for encoding \cite{you_2010}, but in this work I am only going to focus on the most relevant ones.
+
+\subsection{Time domain representation}
+In the time domain, the signal is simply represented as a function of time, where $t$ is the time and $x(t)$ is the raw amplitude, or air pressure, at that point. \cite{bosi_goldberg_2003}
+
+This is the most straightforward representation since it directly correlates to how the signal is being captured in the first place. However, as we will see later, this format is not ideal for storing audio data with any sort of compression.
+
+\subsubsection{PCM}
+In the time domain, the most basic encoding we can use is PCM (Pulse Code Modulation). After sampling a signal at uniform intervals, the discrete values are quantized; that is, each range of values is assigned a symbol in (usually) binary code.
+
+For example using 16-bit signed PCM, each sample will be represented as a 16-bit signed integer, or in the case of multiple channels, N 16-bit signed integers, where N is the amount of channels.
+
+PCM serves as a good base for what we are going to talk about next - Frequency domain representation and encoding.
+
+\subsection{Frequency domain representation}
+While it's simple to understand and work with for the computer with samples in the form of a sequence of amplitudes, it's difficult to run any sort of meaningful analysis on such data. To better grasp the structure of the audio we're working with, it would be helpful to be able to decompose it into its basic building blocks, so to speak. And that's where frequency based representation comes in.
+
+The goal here is to represent the signal as not a function of time, but rather a function of frequency $X(f)$. That is, instead of having a simple sequence of amplitudes, we will have information about the magnitude for each component from a set of frequency ranges. This description alone is generally more compact than the PCM representation \cite{bosi_goldberg_2003} on top of providing us with useful information about the signal, so it will serve as a good entry point to our compression schemes.
+
+\subsubsection{Fourier transform}
+Fourier transform is the first and arguably the most used tool for converting a signal from a function of time $x(t)$ into a function of frequency $X(f)$.
+
+It is based on the \emph{Fourier series}, which is essentially a representation of a periodic function as the linear combination of sines and cosines. \cite{Shatkay:1995:FTP:864947} However, the main difference is that our function need not be periodic.
+
+The Fourier transform of a continuous signal $s$ is defined as: \cite{Recoskie2014ConstrainedNM}
+
+$$S(\xi) = \int_{-\infty}^{\infty}s(t)e^{-2\pi it\xi}dt$$
+
+The output is a complex number, which provides us with the means to find the magnitude and phase offset for the sinusoid of each frequency $\xi$.
+
+The Fourier transform can also be inverted, providing us with an easy way to obtain the original signal back from its frequency components. The inverse transform is defined as:
+
+$$s(t) = \int_{-\infty}^{\infty}S(\xi)e^{2\pi it\xi}d\xi$$
+
+However, seeing as our samples are discretely sampled, we will need to modify our transform accordingly.
+
+The discrete Fourier transform of a discrete signal $s_0, s_1, ..., s_{N-1}$ is: \cite{Recoskie2014ConstrainedNM}
+
+$$S_k = \sum_{n=0}^{N-1}s_ne^{-2\pi ikn/N}$$
+
+And our inverse is:
+
+$$s_n = \frac1N \sum_{k=0}^{N-1}S_ke^{2\pi ikn/N}$$
+
+The issue is, due to the nature of this process, if we run the Fourier transform on our whole signal, we will only be able to analyse it as a whole, e.g. we won't be able to tell which parts of for example a song are quiet or if there are any parts with very high frequencies - we lose our temporal data.
+
+To alleviate this problem, we can run Fourier transform on smaller chunks of the signal, analyse them separately and later join them back into the original signal. That is the essence of the Short-time Fourier transform.
+
+\subsubsection{Short-time Fourier transform}
+
+\subsubsection{Modified discrete cosine transform}
+
 .. how does sound work ..
 
 .. how is sound converted to digital ..
