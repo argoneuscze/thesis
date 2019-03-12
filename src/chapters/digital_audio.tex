@@ -9,6 +9,9 @@ In the real world, these sound waves are generally composed of many different ki
 sampling
 nyquist frequency/limit
 quantization
+transient
+aliasing
+spectral leakage
 windowing
 
 \section{Digital audio representation}
@@ -44,6 +47,8 @@ The Fourier transform of a continuous signal $s$ is defined as: \cite{Recoskie20
 
 $$S(\xi) = \int_{-\infty}^{\infty}s(t)e^{-2\pi it\xi}dt$$
 
+If we inspect the formula, we can notice that Fourier transform essentially projects our signal into infinity - this wouldn't be a problem if it was a periodic signal, but sampled audio is generally constrained by time. To prevent spectral leakage, we must window the signal before processing it.
+
 The output is a complex number, which provides us with the means to find the magnitude and phase offset for the sinusoid of each frequency $\xi$.
 
 The Fourier transform can also be inverted, providing us with an easy way to obtain the original signal back from its frequency components. The inverse transform is defined as:
@@ -65,6 +70,25 @@ The issue is, due to the nature of this process, if we run the Fourier transform
 To alleviate this problem, we can run Fourier transform on smaller chunks of the signal, analyse them separately and later join them back into the original signal. That is the essence of the Short-time Fourier transform.
 
 \subsubsection{Short-time Fourier transform}
+When using Short-time Fourier transform, or STFT for short, we first split the signal into smaller segments of equal size and then run Fourier transform on those separately. As such, our output can be projected into two dimensions - namely a frequency spectrum as a function of time.
+
+Doing it this way will let us see how the frequency components change over time instead of taking the spectrum of the entire signal.
+
+As with regular Fourier transform, we'll need to window each segment of the signal, but there is a caveat. Since we have windowed segments, we may be losing some information at the edge of each segment leading to artifacts, and furthermore we may be losing information about transients. To solve this, we'll need to introduce overlapping windows.
+
+The continuous version is defined as: \cite{Recoskie2014ConstrainedNM}
+
+$$S(\tau, \xi) = \int_{-\infty}^{\infty}s(t)w(t-\tau)e^{-2\pi it\xi}dt$$
+
+where $w$ is the window function.
+
+But again, as we have discrete samples, we will need to use a discrete short-time Fourier transform, specifically:
+
+$$S_{k, \xi} = \sum_{n=-\infty}^{\infty}s_nw_{n-k}e^{-2\pi i\xi n}$$
+
+And similarly to the regular Fourier Transform, short-time Fourier Transform is also invertible. \cite{selesnick_2009}
+
+STFT is most commonly used for audio analysis (TODO source) but in this case it will be used as a means for our NMF compression.
 
 \subsubsection{Modified discrete cosine transform}
 
