@@ -19,7 +19,9 @@ Most commonly, the amount of air pressure is sampled many times a second and aft
 
 By sampling the audio signal, we will potentially be losing out on some information, but given a high enough sampling rate, the result will be imperceptible to the human ear. For general purpose audio and music, the standard sampling rate is 48 kHz, alternatively 44.1 kHz from the compact disk era.
 
-Once we have our digital signal, there are two distinct kinds of ways we can represent it. Both of them have many different data models for encoding \cite{you_2010}, but in this work I am only going to focus on the most relevant ones.
+Once we have our digital signal, there are two distinct kinds of ways we can represent, or, encode it. Both of them have many different data models for encoding \cite{you_2010}, but in this work I am only going to focus on the most relevant ones.
+
+- TODO what compromises are taken when encoding -
 
 \subsection{Time domain representation}
 In the time domain, the signal is simply represented as a function of time, where $t$ is the time and $x(t)$ is the raw amplitude, or air pressure, at that point. \cite{bosi_goldberg_2003}
@@ -74,7 +76,7 @@ When using Short-time Fourier transform, or STFT for short, we first split the s
 
 Doing it this way will let us see how the frequency components change over time instead of taking the spectrum of the entire signal.
 
-As with regular Fourier transform, we'll need to window each segment of the signal, but there is a caveat. Since we have windowed segments, we may be losing some information at the edge of each segment leading to artifacts, and furthermore we may be losing information about transients. To solve this, we'll need to introduce overlapping windows.
+As with regular Fourier transform, we'll need to window each segment of the signal, but there is a caveat. Since we have windowed segments, we may be losing some information at the edge of each segment leading to artifacts, and furthermore we may be losing information about transients. To solve this, we'll need to introduce overlapping windows - however, having an overlap will increase the amount of coefficients required.
 
 The continuous version is defined as: \cite{Recoskie2014ConstrainedNM}
 
@@ -91,16 +93,33 @@ And similarly to the regular Fourier Transform, short-time Fourier Transform is 
 STFT is most commonly used for audio analysis (TODO source) but in this case it will be used as a means for our NMF compression.
 
 \subsubsection{Modified discrete cosine transform}
+Modified discrete cosine transform, or MDCT for short, has become the dominant means of high-quality audio coding. \cite{wang_vilermo_2012_mdct}
 
-.. how does sound work ..
+It is what's known as a \emph{lapped transform}. This means that when transforming a block into its MDCT coefficients, the basis function overlaps the block's boundaries. \cite{Malvar:1992:SPL:531523} In practice, what this means is that while we have blocks with overlapping windows as in the short-time Fourier transform, the number of coefficients remains the same while retaining the relevant properties.
 
-.. how is sound converted to digital ..
+As the name suggests, MDCT is based on the Discrete cosine transform, namely \emph{DCT-IV}, where the main difference is the addition of lapping mentioned above.
 
-.. basic representations (pcm) ..
+It is a linear function $f: \mathbf{R}^{2N} \rightarrow \mathbf{R}^N$, defined as: \cite{Babu2013FastAE}
 
-.. time-frequency representation ..
+$$X(k) = \sum_{n=0}^{N-1} x(n) \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace$$ 
 
-.. state of art audio compression ..
+for $k = 0, 1, \ldots, \frac{N}{2}-1$.
 
-.. what compromises are taken ..
+It is assumed that $x(n)$ is already windowed by an appropriate windowing function $w$.
+
+MDCT is also invertible, and its inversion is defined as:
+
+$$\bar{x}(n) = \sum_{k=0}^{\frac{N}{2}-1} X(k) \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace$$
+
+It's important to note that the inverted transformed sequence does not correspond to the original signal \cite{prince_1986_tdac_1}. To achieve perfect invertibility, we must add subsequent overlapping blocks of the inverted MDCT (IMDCT). This method is called \emph{time domain aliasing cancellation} \cite{prince_1986_tdac_2}, or TDAC for short. As the name suggests, it mainly helps remove artifacts on the boundaries between transform blocks.
+
+\section{State of the art}
+.. what methods are commonly used ..
+
+\subsection{MP3}
+.. how does it work ..
+
+\subsection{Opus}
+.. how does it work ..
+
 

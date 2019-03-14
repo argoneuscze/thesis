@@ -64,3 +64,4 @@ to improve the compression ratio without a noticeable loss in quality. Therefore
 * [Extensions of Non-negative Matrix Factorization and their Application to the Analysis of Wafer Test Data](https://d-nb.info/1005632472/34)
 * [Algorithms for Non-negative Matrix Factorization](https://papers.nips.cc/paper/1861-algorithms-for-non-negative-matrix-factorization.pdf)
 * [Short-Time Fourier Transform and Its Inverse](http://eeweb.poly.edu/iselesni/EL713/STFT/stft_inverse.pdf)
+* [Spectrum and spectral density estimation by the Discrete Fourier transform (DFT), including a comprehensive list of window functions and some new flat-top windows.](https://holometer.fnal.gov/GH_FFT.pdf)
