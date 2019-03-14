@@ -47,7 +47,9 @@ It is based on the \emph{Fourier series}, which is essentially a representation 
 
 The Fourier transform of a continuous signal $s$ is defined as: \cite{Recoskie2014ConstrainedNM}
 
-$$S(\xi) = \int_{-\infty}^{\infty}s(t)e^{-2\pi it\xi}dt$$
+\begin{align}
+S(\xi) = \int_{-\infty}^{\infty}s(t)e^{-2\pi it\xi}dt
+\end{align}
 
 If we inspect the formula, we can notice that Fourier transform essentially projects our signal into infinity - this wouldn't be a problem if it was a periodic signal, but sampled audio is generally constrained by time. To prevent spectral leakage, we must window the signal before processing it.
 
@@ -55,17 +57,23 @@ The output is a complex number, which provides us with the means to find the mag
 
 The Fourier transform can also be inverted, providing us with an easy way to obtain the original signal back from its frequency components. The inverse transform is defined as:
 
-$$s(t) = \int_{-\infty}^{\infty}S(\xi)e^{2\pi it\xi}d\xi$$
+\begin{align}
+s(t) = \int_{-\infty}^{\infty}S(\xi)e^{2\pi it\xi}d\xi
+\end{align}
 
 However, seeing as our samples are discretely sampled, we will need to modify our transform accordingly.
 
 The discrete Fourier transform of a discrete signal $s_0, s_1, ..., s_{N-1}$ is: \cite{Recoskie2014ConstrainedNM}
 
-$$S_k = \sum_{n=0}^{N-1}s_ne^{-2\pi ikn/N}$$
+\begin{align}
+S_k = \sum_{n=0}^{N-1}s_ne^{-2\pi ikn/N}
+\end{align}
 
 And our inverse is:
 
-$$s_n = \frac1N \sum_{k=0}^{N-1}S_ke^{2\pi ikn/N}$$
+\begin{align}
+s_n = \frac1N \sum_{k=0}^{N-1}S_ke^{2\pi ikn/N}
+\end{align}
 
 The issue is, due to the nature of this process, if we run the Fourier transform on our whole signal, we will only be able to analyse it as a whole, e.g. we won't be able to tell which parts of for example a song are quiet or if there are any parts with very high frequencies - we lose our temporal data.
 
@@ -80,13 +88,17 @@ As with regular Fourier transform, we'll need to window each segment of the sign
 
 The continuous version is defined as: \cite{Recoskie2014ConstrainedNM}
 
-$$S(\tau, \xi) = \int_{-\infty}^{\infty}s(t)w(t-\tau)e^{-2\pi it\xi}dt$$
+\begin{align}
+S(\tau, \xi) = \int_{-\infty}^{\infty}s(t)w(t-\tau)e^{-2\pi it\xi}dt
+\end{align}
 
 where $w$ is the window function.
 
 But again, as we have discrete samples, we will need to use a discrete short-time Fourier transform, specifically:
 
-$$S_{k, \xi} = \sum_{n=-\infty}^{\infty}s_nw_{n-k}e^{-2\pi i\xi n}$$
+\begin{align}
+S_{k, \xi} = \sum_{n=-\infty}^{\infty}s_nw_{n-k}e^{-2\pi i\xi n}
+\end{align}
 
 And similarly to the regular Fourier Transform, short-time Fourier Transform is also invertible. \cite{selesnick_2009}
 
@@ -101,7 +113,9 @@ As the name suggests, MDCT is based on the Discrete cosine transform, namely \em
 
 It is a linear function $f: \mathbf{R}^{2N} \rightarrow \mathbf{R}^N$, defined as: \cite{Babu2013FastAE}
 
-$$X(k) = \sum_{n=0}^{N-1} x(n) \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace$$ 
+\begin{align}
+X(k) = \sum_{n=0}^{N-1} x(n) \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace
+\end{align}
 
 for $k = 0, 1, \ldots, \frac{N}{2}-1$.
 
@@ -109,7 +123,11 @@ It is assumed that $x(n)$ is already windowed by an appropriate windowing functi
 
 MDCT is also invertible, and its inversion is defined as:
 
-$$\bar{x}(n) = \sum_{k=0}^{\frac{N}{2}-1} X(k) \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace$$
+\begin{align}
+\bar{x}(n) &= \sum_{k=0}^{\frac{N}{2}-1} X(k) \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace
+\end{align}
+
+for $n = 0, 1, \ldots, N-1$.
 
 It's important to note that the inverted transformed sequence does not correspond to the original signal \cite{prince_1986_tdac_1}. To achieve perfect invertibility, we must add subsequent overlapping blocks of the inverted MDCT (IMDCT). This method is called \emph{time domain aliasing cancellation} \cite{prince_1986_tdac_2}, or TDAC for short. As the name suggests, it mainly helps remove artifacts on the boundaries between transform blocks.
 
