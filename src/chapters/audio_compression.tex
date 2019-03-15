@@ -1,0 +1,25 @@
+Compression can be split into two kinds - lossy and lossless. Using "lossless" in the context of audio is a bit misleading, since sampling itself is a lossy process, but using a high enough sampling rate, we will not notice any difference, so sampled audio without any lossy compression will be our baseline.
+
+For audio, lossless compression generally means taking some form of digital audio representation and losslessly compressing this data. This will preserve the signal in its entirety with a reduced bit-rate. However, due to size of such audio (an audio CD could only fit about 80 minutes of such music sampled at 44.1 kHz), it's become more common to use a lossy format.
+
+Lossy compression implies that there will be loss of data, and while this is true, thanks to the application of various psychoacoustic principles size of audio can be greatly reduced without altering human perception, leading to vastly smaller bit-rates for no real cost.
+
+This work focuses on lossy audio compression, therefore only lossy codecs will be considered for comparison.
+
+\section{State of the art}
+Due to its qualities of efficiently compacting energy and mitigating artifacts at block boundaries, MDCT is the most commonly used transformation in modern lossy audio coding, and is employed in the most popular audio formats including MP3, Opus, Vorbis or AAC.
+
+In this section, I will elaborate on some of the more popular ones to get an idea of what considerations go into writing a modern audio codec.
+
+\subsection{MP3}
+.. TODO diagram ..
+
+MP3, or MPEG-1 Layer III has been standardized in 1991 and has since become widespread throughout a multitude of electronic devices as the de-facto standard for music storage.
+
+It's a very powerful compression/decompression scheme capable of reducing the bit-rate of an audio stream by up to a factor of 12 without any noticeable (to humans) quality degradation. \cite{Raissi2002TheTB}
+
+
+\subsection{Opus (CELT)}
+.. TODO diagram ..
+
+.. how does it work ..

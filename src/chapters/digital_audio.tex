@@ -107,9 +107,11 @@ STFT is most commonly used for audio analysis (TODO source) but in this case it 
 \subsubsection{Modified discrete cosine transform}
 Modified discrete cosine transform, or MDCT for short, has become the dominant means of high-quality audio coding. \cite{wang_vilermo_2012_mdct}
 
-It is what's known as a \emph{lapped transform}. This means that when transforming a block into its MDCT coefficients, the basis function overlaps the block's boundaries. \cite{Malvar:1992:SPL:531523} In practice, what this means is that while we have blocks with overlapping windows as in the short-time Fourier transform, the number of coefficients remains the same while retaining the relevant properties.
+It is what's known as a \emph{lapped transform}. This means that when transforming a block into its MDCT coefficients, the basis function overlaps the block's boundaries. \cite{Malvar:1992:SPL:531523} In practice, what this means is that while we have blocks with overlapping windows as in the short-time Fourier transform, the number of coefficients remains the same as without while retaining the relevant properties.
 
 As the name suggests, MDCT is based on the Discrete cosine transform, namely \emph{DCT-IV}, where the main difference is the addition of lapping mentioned above.
+
+What makes MDCT simpler to work with compared to Fourier transform is that not only do we not need more coefficients despite overlapping, they are also real numbers as opposed to complex numbers, lowering the amount of bytes necessary to store them.
 
 It is a linear function $f: \mathbf{R}^{2N} \rightarrow \mathbf{R}^N$, defined as: \cite{Babu2013FastAE}
 
@@ -131,13 +133,36 @@ for $n = 0, 1, \ldots, N-1$.
 
 It's important to note that the inverted transformed sequence does not correspond to the original signal \cite{prince_1986_tdac_1}. To achieve perfect invertibility, we must add subsequent overlapping blocks of the inverted MDCT (IMDCT). This method is called \emph{time domain aliasing cancellation} \cite{prince_1986_tdac_2}, or TDAC for short. As the name suggests, it mainly helps remove artifacts on the boundaries between transform blocks.
 
-\section{State of the art}
-.. what methods are commonly used ..
+\section{Psychoacoustics}
+Apart from time-frequency representations being generally more compact, they also give us the ability to analyse, isolate or modify the frequency composition of a given signal. This comprises a large chunk of the audio compressing process.
 
-\subsection{MP3}
-.. how does it work ..
+The field of psychoacoustics studies sound perception - that is, how our ears work and how we perceive different kinds of sounds. There are many different characteristics to sound that need to be taken into account for a proper psychoacoustic analysis \cite{olson1967music}, split into several categories, namely:
 
-\subsection{Opus}
-.. how does it work ..
+\begin{description}
+	\item[tonal] includes pitch, timbre, melody harmony
+	\item[dynamic] based on loudness
+	\item[temporal] involves time, duration, tempo and rhythm
+	\item[qualitative] represents harmonic constitution of the tone
+\end{description}
+
+For music, it's important to balance these four qualities appropriately. For compression, the most important qualities for us in scope of this work are going to be tonal (pitch) and dynamic (loudness).
+
+\subsection{Pitch}
+Pitch is a characteristic that comes from a frequency. The difference between the two is that pitch is our subjective perception of the tone whereas a frequency is an objective measure. However, pitch is usually quantified as a frequency using Hertz as its unit.
+
+The lower bound of human hearing is around 20 Hz whereas the upper bound is most commonly cited as 20 000 Hz, or 20 kHz. \cite{rosen1993hearing} In a laboratory environment, people have been found to hear as low as 12 Hz. As people age, our hearing gets progressively worse and a healthy adult younger than 40 years can generally perceive frequencies only up to 15 kHz. \cite{olson1967music}
+
+Furthermore, people have different sensitivity to different frequencies.
+
+.. TODO bark scale ..
+
+\subsection{Loudness}
+
+\subsection{Auditory masking}
+
+.. TODO frequency masking / temporal masking ..
+\cite{gelfand1990hearing}
+
+
 
 
