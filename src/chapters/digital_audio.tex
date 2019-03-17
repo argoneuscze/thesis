@@ -148,20 +148,43 @@ The field of psychoacoustics studies sound perception - that is, how our ears wo
 For music, it's important to balance these four qualities appropriately. For compression, the most important qualities for us in scope of this work are going to be tonal (pitch) and dynamic (loudness).
 
 \subsection{Pitch}
-Pitch is a characteristic that comes from a frequency. The difference between the two is that pitch is our subjective perception of the tone whereas a frequency is an objective measure. However, pitch is usually quantified as a frequency using Hertz as its unit.
+Pitch is a characteristic that comes from a frequency. The difference between the two is that pitch is our subjective perception of the tone whereas a frequency is an objective measure. Despite this fact, pitch is often quantified as a frequency using Hertz as its unit.
 
 The lower bound of human hearing is around 20 Hz whereas the upper bound is most commonly cited as 20 000 Hz, or 20 kHz. \cite{rosen1993hearing} In a laboratory environment, people have been found to hear as low as 12 Hz. As people age, our hearing gets progressively worse and a healthy adult younger than 40 years can generally perceive frequencies only up to 15 kHz. \cite{olson1967music}
 
-Furthermore, people have different sensitivity to different frequencies.
+The human ear is capable of distinguishing different frequencies fairly accurately, though accuracy gets lower with increasing frequency. It's easier for our ears to tell a difference between 500 Hz and 520 Hz compared to the difference between 5000 Hz and 5020 Hz. \cite{smacdon_2018}
 
-.. TODO bark scale ..
+Furthermore, if we hear two different tones simultaneously, but their frequencies are close enough to one another, we may perceive them as a combination of tones rather than separate tones. Frequency ranges, or bands, where this phenomenon happens, are called \emph{critical bands}. \cite{fletcher_1940} It's also possible for one tone to mask the other entirely, and then we get what's called \emph{auditory masking}. \cite{gelfand1990hearing}
+
+Based on the knowledge of the existence of these critical bands, it's possible to devise a system that specifies the range of each band in human hearing. One such scale that is commonly used is called the \emph{Bark scale}.
+
+\subsubsection{Bark scale}
+The Bark scale ranges from 1 to 24 Barks, where each Bark corresponds to a single critical band of human hearing. \cite{fastl_2006} The perceived difference in pitch between each band should be the same, despite the scale not growing linearly in terms of frequency ranges. Specifically, until around 500 Hz, the scale is roughly linear, but above that it has a more logarithmic growth. \cite{hermes_filter}
+
+The Bark scale is commonly used as reference for audio encoding codecs, as we will see later. Knowledge of these critical bands allows for more educated byte allocation during the quantization process when compressing a frequency domain representation.
+
+.. TODO image/table of scale ..
 
 \subsection{Loudness}
+What people often decide as loudness is really called \emph{sound pressure level} and it's measured in decibels (dB), however it has some shortcomings when it comes to psychoacoustic analysis.
+
+It is defined as following: \cite{behar_1984}
+
+\begin{align}
+L_p = 20 \log_{10} \left( \frac{p}{p_0} \right) \text{dB}
+\end{align}
+
+where $p$ is a sound's sound pressure and $p_0$ is a reference sound pressure, also called the threshold of human hearing.
+
+While this metric is very popular, it doesn't account for the fact that different frequencies have a different perceived loudness for a person's ears. \cite{olson1967music} There is a lot of research in recent years into how different frequencies impact our perception and hearing \cite{kuwano_1989}, but that is out of scope of this work. For more information about the exact definitions of loudness, refer to \cite{olson1967music}.
 
 \subsection{Auditory masking}
+As mentioned above, when it comes to audio masking, and therefore audio compression, we must not only take into account the critical bands as per e.g. the Bark scale, but also their intensity.
 
+For example a lower frequency sound may mask one of a higher frequency, but the other way around does not apply. \cite{gelfand1990hearing} Modern audio encoders take this into account and using this knowledge are able to eliminate sounds that exist in the original signal, but are not perceivable by humans.
+
+.. TODO image of masking ..
 .. TODO frequency masking / temporal masking ..
-\cite{gelfand1990hearing}
 
 
 
