@@ -26,8 +26,27 @@ The signal is also analyzed using the Fourier transformation, which gives us fre
 
 Once we have the scaled and quantized data, we use the Huffman encoding to losslessly compress these values, and format this output into the final bitstream, encoding our audio.
 
-
 \subsection{Opus (CELT)}
 .. TODO diagram ..
 
-.. how does it work ..
+The Opus codec has been standardized fairly recently \cite{rfc6716} compared to other widespread audio codecs. Opus was created from two core technologies - Skype's SILK codec based on linear prediction, and Xiph.Org's CELT codec, based on the MDCT. \cite{opus_celt}
+
+As a result, Opus is capable of performing in three different modes:
+
+\begin{description}
+	\item[SILK] used for speech signals
+	\item[CELT] used for high-bitrate speech and music
+	\item[Hybrid] both SILK and CELT used simultaneously
+\end{description}
+
+This thesis will mainly focus on Opus CELT due to it being more general purpose than SILK, which will make it easier to use for comparison with a NMF-based codec. SILK uses a technique known as Linear predictive coding, whose complexity and difficulty of implementation exceeds the scope of this work.
+
+Opus is designed with real-time constraints in mind, that is, for example network music performances which require very low delays. Despite that, however, its compression is comparable to codecs with higher delays intended for streaming or storage. This makes it a good candidate to test against in this work, alongside MP3.
+
+CELT (Constrained Energy Lapped Transform) is based on MDCT similar to MP3, but the main difference is that Opus uses specifically sized bands with ranges similar to the Bark scale in order to preserve the spectral envelope of the signal.
+
+Similar to MP3, Opus CELT works on the basis of quantizing MDCT coefficients, but utilizes various kinds of prediction and focuses more on handling transients. Through various optimizations Opus achieves similar results but at a reduced bitrate.
+.. TODO source listening test ..
+
+\subsection{Opus (SILK)}
+.. TODO if I have time ..
