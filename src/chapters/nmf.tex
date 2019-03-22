@@ -1,10 +1,28 @@
+In today's age of big data, machine learning and various other fields, it's important to have ways to quickly analyse these datasets and ideally find patterns within. Non-negative matrix factorization is one of the paradigms suitable for that task.
 
+\section{Linear dimensionality reduction}
+Non-negative matrix factorization, or NMF, falls under \emph{linear dimensionality reduction} techniques. These are used widely for noise filtering, feature selection or compression, among others.
 
-.. what is nmf ..
+LDR can be defined as following: \cite{nmf_why_how}
 
-.. how is nmf defined ..
+\begin{align}
+x_j &\approx \sum_{k=1}^{r}w_kh_j(k) &\text{for some weights $h_j \in \mathbf{R}^r$}
+\end{align}
 
-.. what is nmf used for ..
+where given a data set of size $n$, we define $x_j \in \mathbf{R}^p$ for $1 \leq j \leq n$, $r < \min(p,n)$, and $w_k \in \mathbf{R}^p$ for $1 \leq k \leq r$.
+
+What this effectively means is that we represent $p$-dimensional data points in a $r$-dimensional linear subspace, with basis elements $w_k$ and data coordinates given by vectors $h_j$. LDR defined in this manner is equivalent to low-rank matrix approximation, which is the essence of non-negative matrix factorization.
+
+\section{NMF definition}
+Non-negative matrix factorization solves the following problem:
+
+Given a non-negative matrix $V$, find non-negative matrix factors $W$ and $H$ such that:
+
+\begin{align}
+V \approx WH
+\end{align}
+
+That is, given a set of multivariate $n$-dimensional data vectors, we place these vectors in the columns of a $n \times m$ matrix $V$, where $m$ is the amount of examples we have. We then approximately factorize this matrix into two different matrices: a $n \times r$ matrix $W$ and a $r \times m$ matrix $H$. We generally choose $r < \min(n,m)$ so that the two matrices are smaller than the original matrix $V$, essentially compressing it. \cite{nmf_algorithms}
 
 .. why is nmf non-negative ..
 

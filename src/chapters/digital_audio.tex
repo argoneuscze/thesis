@@ -51,7 +51,7 @@ The Fourier transform of a continuous signal $s$ is defined as: \cite{Recoskie20
 S(\xi) = \int_{-\infty}^{\infty}s(t)e^{-2\pi it\xi}dt
 \end{align}
 
-If we inspect the formula, we can notice that Fourier transform essentially projects our signal into infinity - this wouldn't be a problem if it was a periodic signal, but sampled audio is generally constrained by time. To prevent spectral leakage, we must window the signal before processing it.
+If we inspect the formula, we can notice that Fourier transform essentially projects our signal into infinity - this wouldn't be a problem if it was a periodic signal, but sampled audio is generally constrained by time. To prevent spectral leakage, we must window the signal before processing it. \cite{heinzel_2002_windows}
 
 The output is a complex number, which provides us with the means to find the magnitude and phase offset for the sinusoid of each frequency $\xi$.
 
