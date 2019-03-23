@@ -14,7 +14,7 @@ where given a data set of size $n$, we define $x_j \in \mathbf{R}^p$ for $1 \leq
 What this effectively means is that we represent $p$-dimensional data points in a $r$-dimensional linear subspace, with basis elements $w_k$ and data coordinates given by vectors $h_j$. LDR defined in this manner is equivalent to low-rank matrix approximation, which is the essence of non-negative matrix factorization.
 
 \section{NMF definition}
-Non-negative matrix factorization solves the following problem:
+Non-negative matrix factorization solves the following NP-hard problem:
 
 Given a non-negative matrix $V$, find non-negative matrix factors $W$ and $H$ such that:
 
@@ -24,7 +24,50 @@ V \approx WH
 
 That is, given a set of multivariate $n$-dimensional data vectors, we place these vectors in the columns of a $n \times m$ matrix $V$, where $m$ is the amount of examples we have. We then approximately factorize this matrix into two different matrices: a $n \times r$ matrix $W$ and a $r \times m$ matrix $H$. We generally choose $r < \min(n,m)$ so that the two matrices are smaller than the original matrix $V$, essentially compressing it. \cite{nmf_algorithms}
 
-.. why is nmf non-negative ..
+The additional constraint of non-negativity is important, as results show that it leads to a natural higher sparseness in both the basis matrix ($W$) and the encoding matrix ($H$). Additionally, non-negativity leads to a parts-based representation, which is similar to how our brains are presumed to work. \cite{nmf_parts_objects} This sparseness makes it even easier to further compress the resulting matrices, saving us more space.
+
+\section{Classification}
+NMF is as of currently still a relevant research topic, and has been explored by researchers from many different fields including mathematicians, statisticians, computer scientists or biologists. Given the wide range of use, over time it lead to different variations and additional constraints on the algorithms. Therefore, a taxonomy system was proposed in \cite{wang_zhang_2013}.
+
+.. TODO diagram of NMF categorization ..
+
+\subsection{Basic NMF}
+This is the basic model which only enforces non-negativity, and that all the following ones build upon.
+
+\subsection{Constrained NMF (CNMF)}
+Constrained NMF imposes additional constraints on the resulting matrices, namely:
+
+\begin{description}
+	\item[Sparse NMF] SPNMF, sparseness constraint
+	\item[Orthogonal NMF] ONMF, orthogonality constraint
+	\item[Discriminant NMF] DNMF, couples discriminant information along with the decomposition
+	\item[NMF on manifold] MNMF, preserves local topological properties
+\end{description}
+
+\subsection{Structured NMF (SNMF)}
+Structured NMF modifies standard factorization formulations:
+
+\begin{description}
+	\item[Weighed NMF] WNMF, attaches weights to different elements relative to their importance
+	\item[Convolutive NMF] CVNMF, considers time-frequency domain factorization
+	\item[Non-negative Matrix Trifactorization] NMTF, decomposes the data into three matrices
+\end{description}
+
+\subsection{Generalized NMF (GNMF)}
+Generalized NMF can be considered a broader variant of Basic NMF, where conventional data types or factorization modes may be replaced with something different. It's split as follows:
+
+\begin{description}
+	\item[Semi-NMF] relaxes the non-negativity constraint on a specific factor matrix
+	\item[Non-negative Tensor Factorization] NTF, generalizes the model to higher dimensional tensors
+	\item[Non-negative Matrix-set Factorization] NMSF, extends the data sets from matrices to matrix-sets
+	\item[Kernel NMF] KNMF, non-linear model of NMF
+\end{description}
+
+\section{Algorithms}
+.. TODO optimization function, cost function, updates ..
+
+\section{Use in audio compression}
+.. TODO paper128 ..
 
 .. different kinds of nmf ..
 
