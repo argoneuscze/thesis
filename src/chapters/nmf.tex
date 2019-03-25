@@ -22,17 +22,17 @@ Given a non-negative matrix $V$, find non-negative matrix factors $W$ and $H$ su
 V \approx WH
 \end{align}
 
-That is, given a set of multivariate $n$-dimensional data vectors, we place these vectors in the columns of a $n \times m$ matrix $V$, where $m$ is the amount of examples we have. We then approximately factorize this matrix into two different matrices: a $n \times r$ matrix $W$ and a $r \times m$ matrix $H$. We generally choose $r < \min(n,m)$ so that the two matrices are smaller than the original matrix $V$, essentially compressing it. \cite{nmf_algorithms}
-
-The additional constraint of non-negativity is important, as results show that it leads to a natural higher sparseness in both the basis matrix ($W$) and the encoding matrix ($H$). Additionally, non-negativity leads to a parts-based representation, which is similar to how our brains are presumed to work. \cite{nmf_parts_objects} This sparseness makes it even easier to further compress the resulting matrices, saving us more space.
+That is, given a set of multivariate $n$-dimensional data vectors, we place these vectors in the columns of a $n \times m$ matrix $V$, where $m$ is the amount of examples we have. We then approximately factorize this matrix into two different matrices: a $n \times r$ matrix $W$ and a $r \times m$ matrix $H$. We generally choose $r < \min(n,m)$ (though this is not required) so that the two matrices are smaller than the original matrix $V$, essentially compressing it. \cite{nmf_algorithms}
 
 \section{Classification}
-NMF is as of currently still a relevant research topic, and has been explored by researchers from many different fields including mathematicians, statisticians, computer scientists or biologists. Given the wide range of use, over time it lead to different variations and additional constraints on the algorithms. Therefore, a taxonomy system was proposed in \cite{wang_zhang_2013}.
+NMF is as of currently still a relevant research topic, and has been explored by researchers from many different fields including mathematicians, statisticians, computer scientists or biologists. Given the wide range of use, over time it lead to different variations and additional constraints on the algorithms. Therefore, a taxonomy system was proposed in \cite{wang_zhang_2013}, outlined below.
 
 .. TODO diagram of NMF categorization ..
 
 \subsection{Basic NMF}
-This is the basic model which only enforces non-negativity, and that all the following ones build upon.
+This is the basic model which only enforces non-negativity, and which all the following ones build upon.
+
+However, due to its unconstrained nature, without any other constraints there are many possible solutions  which may lead to the algorithm's performance to vary. Further constraints outlined below help in the search of unique solutions.
 
 \subsection{Constrained NMF (CNMF)}
 Constrained NMF imposes additional constraints on the resulting matrices, namely:
@@ -63,8 +63,53 @@ Generalized NMF can be considered a broader variant of Basic NMF, where conventi
 	\item[Kernel NMF] KNMF, non-linear model of NMF
 \end{description}
 
+\section{Properties}
+The additional constraint of non-negativity is important, as results show that it leads to a natural higher sparseness in both the basis matrix ($W$) and the encoding matrix ($H$). Additionally, non-negativity leads to a parts-based representation, which is similar to how our brains are presumed to work, basically combining parts in an additive manner to form a whole instead of subtracting. \cite{nmf_parts_objects} This sparseness makes it even easier to further compress the resulting matrices, saving us more space.
+
+However this isn't without any downsides. While the concept of adding parts together seems to make a lot of sense, there is an issue. Since NMF employs a holistic approach, the additive parts learned by it in an unsupervised mode only considers features on a global level, and does not allow for representation of spatially localized features. \cite{li_spatial_lnmf_2001}
+
+So while on paper NMF might seem better than PCA or SVD for a parts-based representation, it only comes at a cost of increased complexity, and since both PCA and SVD have a more compact spectrum than NMF, we must consider if this is worth the trade-off. \cite{wang_zhang_2013}
+
 \section{Algorithms}
-.. TODO optimization function, cost function, updates ..
+For the purposes of this thesis, we will only consider algorithms for Basic NMF. While NMF has been widely used in sound analysis etc. as we'll see below, its use for audio compression specifically is rare and there are limited resources to provide insight into utilizing possible constraints, therefore we will only be using the standard version.
+
+Finding a decomposition of a matrix $V$ into matrices $W$ and $H$ is an NP-hard problem, and as such, the resulting matrices are generally only approximated over a number of iterations of an optimization algorithm. What this means in practice is that it's likely a result we'll find is sub-optimal or a local minimum.
+
+\subsection{Cost function}
+When using iterative updates, in each step of the process we need to evaluate the quality of the approximation. The function that does this is called the \emph{cost function}, or \emph{objective function}.
+
+There are two simple commonly used functions. Firstly, we can use squared Euclidean distance: \cite{pentti_pmf_1997}
+
+\begin{align}
+||A-B||^2 = \sum_{ij}(A_{ij} - B_{ij})^2
+\end{align}
+
+This is lower bounded by 0, which it only is equal to if $A = B$.
+
+Another metric we can use is based on Kullback-Leibler divergence, and is defined as such: \cite{nmf_algorithms}
+
+\begin{align}
+D(A||B) = \sum_{ij} \left( A_{ij} \log \frac{A_{ij}}{B_{ij}} - A_{ij} + B_{ij} \right)
+\end{align}
+
+\subsection{Update rules}
+With the cost function in place, we now need a function to apply each iteration to try and minimize the value of the cost function. It has been found that a good compromise between speed and ease of implementation is to use what's called \emph{multiplicative update rules}. \cite{nmf_algorithms} Despite being over 15 years old, they are still very commonly used exactly for this reason.
+
+For non-increasing Euclidean distance $||V - WH||$, if $W$ and $H$ are at a stationary point of distance, we may use these rules:
+
+\begin{align}
+H_{a \mu} & \leftarrow H_{a \mu} \frac{(W^TV)_{a \mu}}{(W^TWH)_{a \mu}} \\
+W_{ia} & \leftarrow W_{ia} \frac{(VH^T)_{ia}}{(WHH^T)_{ia}}
+\end{align}
+
+And for non-increasing divergence $D(V||WH)$, if $W$ and $H$ are at a stationary point of divergence, we can use this:
+
+\begin{align}
+H_{a \mu} & \leftarrow H_{a \mu} \frac{\sum_i W_{ia} V_{i \mu} / (WH)_{i \mu}}{\sum_k W_{ka}} \\
+W_{ia} & \leftarrow W_{ia} \frac{\sum_\mu H_{a \mu} V_{i \mu} / (WH)_{i \mu}}{\sum_v H_{av}}
+\end{align}
+
+.. TODO more update / cost functions used in music? ..
 
 \section{Use in audio compression}
 .. TODO paper128 ..
