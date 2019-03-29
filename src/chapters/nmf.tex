@@ -1,5 +1,7 @@
 In today's age of big data, machine learning and various other fields, it's important to have ways to quickly analyse these datasets and ideally find patterns within. Non-negative matrix factorization is one of the paradigms suitable for that task.
 
+In layman's terms, what NMF does is that when we are given a large set of data, for example a matrix representing books and their review scores from people, we can extract certain hidden "features" from it using NMF, in this case representing e.g. various genres (basis matrix) and how prominent they are in a given book (weight matrix). And then, using these two matrices, we are able to estimate or even predict what kind of books a user would like - this is a simple example of a possible recommendation algorithm.
+
 \section{Linear dimensionality reduction}
 Non-negative matrix factorization, or NMF, falls under \emph{linear dimensionality reduction} techniques. These are used widely for noise filtering, feature selection or compression, among others.
 
@@ -109,11 +111,15 @@ H_{a \mu} & \leftarrow H_{a \mu} \frac{\sum_i W_{ia} V_{i \mu} / (WH)_{i \mu}}{\
 W_{ia} & \leftarrow W_{ia} \frac{\sum_\mu H_{a \mu} V_{i \mu} / (WH)_{i \mu}}{\sum_v H_{av}}
 \end{align}
 
-.. TODO more update / cost functions used in music? ..
+.. TODO more update / cost functions used in music? itakura saito ..
 
-\section{Use in audio compression}
-.. TODO paper128 ..
+\section{Use in digital audio processing}
+In digital audio, Non-negative matrix factorization is mostly used as a tool for analysis rather than compression. The ability to extract hidden features from a given signal is useful for certain things.
 
-.. different kinds of nmf ..
+For example NMF sees use in audio separation tasks. \cite{fevotte_audio_separation_2017} The gist of this lies in first creating a spectrogram of the signal using STFT and then using NMF decomposition to isolate different kinds of sounds or instruments from it, roughly represented by the basis matrix.
 
-.. use in audio ..
+Another example of use is musical transcription. \cite{recoskie_mann_2014} The idea here is to process an input signal via STFT, further filtering and NMF, to isolate individual notes from e.g. a piano piece.
+
+Both of these methods have seen some success, but as we will see later, applying NMF to compression rather than analysis is not a simple task and might not even be worth it.
+
+

@@ -6,10 +6,12 @@ Lossy compression implies that there will be loss of data, and while this is tru
 
 This work focuses on lossy audio compression, therefore only lossy codecs will be considered for comparison.
 
+\section{Overview}
+
 \section{State of the art}
 Due to its qualities of efficiently compacting energy and mitigating artifacts at block boundaries, MDCT is the most commonly used transformation in modern lossy audio coding, and is employed in the most popular audio formats including MP3, Opus, Vorbis or AAC.
 
-In this section, I will elaborate on some of the more popular ones to get an idea of what considerations go into writing a modern audio codec.
+In this section, I will elaborate on some of the more popular ones to get an idea of what considerations go into writing a modern audio codec. They are also the ones that will be used for comparison with my own encoding scheme.
 
 \subsection{MP3}
 .. TODO diagram ..
@@ -50,3 +52,9 @@ Similar to MP3, Opus CELT works on the basis of quantizing MDCT coefficients, bu
 
 \subsection{Opus (SILK)}
 .. TODO if I have time ..
+
+\section{Compression using NMF}
+.. TODO paper128 ..
+
+.. TODO ..
+
