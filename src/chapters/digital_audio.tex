@@ -4,6 +4,27 @@ In the real world, these sound waves are generally composed of many different ki
 
 - TODO image of audio signal -
 
+\section{Notation}
+Below is a summary of the notation this chapter will be using.
+
+\begin{table}[htbp]\caption{Digital audio notation}
+\begin{tabular}{r l}
+$t$ & symbol representing a time value in seconds \\
+$\tau$ & symbol representing a "slow" time, time index with a lower resolution than $t$ \\
+$\xi$ & symbol representing a frequency value in hertz \\
+$x(t)$ & function representing the amplitude of a continuous signal at a time $t$ \\
+$x_n$ & sequence representing the amplitude of a discrete signal indexed by $n$ \\
+$w(t)$ & continuous windowing function at a time $t$ \\
+$w_n$ & discrete windowing function indexed by $n$ \\
+$X(\xi)$ & function representing the frequency component of a signal for a frequency $\xi$ \\
+$S(\xi)$ & the Fourier transform of a continuous signal \\
+$S_k$ & the discrete Fourier transform of a discrete signal \\
+$S(\tau, \xi)$ & the short-time Fourier transform of a continuous signal \\
+$S_{k, \xi}$ & the discrete short-time Fourier transform of a discrete signal \\
+$M_k$ & the Modified discrete cosine transform of a discrete signal
+\end{tabular}
+\end{table}
+
 \section{Important terms}
 .. TODO ..
 sampling
@@ -45,10 +66,10 @@ Fourier transform is the first and arguably the most used tool for converting a 
 
 It is based on the \emph{Fourier series}, which is essentially a representation of a periodic function as the linear combination of sines and cosines. \cite{Shatkay:1995:FTP:864947} However, the main difference is that our function need not be periodic.
 
-The Fourier transform of a continuous signal $s$ is defined as: \cite{Recoskie2014ConstrainedNM}
+The Fourier transform of a continuous signal $x$ is defined as: \cite{Recoskie2014ConstrainedNM}
 
 \begin{align}
-S(\xi) = \int_{-\infty}^{\infty}s(t)e^{-2\pi it\xi}dt
+S(\xi) = \int_{-\infty}^{\infty}x(t)e^{-2\pi it\xi}dt
 \end{align}
 
 If we inspect the formula, we can notice that Fourier transform essentially projects our signal into infinity - this wouldn't be a problem if it was a periodic signal, but sampled audio is generally constrained by time. To prevent spectral leakage, we must window the signal before processing it. \cite{heinzel_2002_windows}
@@ -58,21 +79,21 @@ The output is a complex number, which provides us with the means to find the mag
 The Fourier transform can also be inverted, providing us with an easy way to obtain the original signal back from its frequency components. The inverse transform is defined as:
 
 \begin{align}
-s(t) = \int_{-\infty}^{\infty}S(\xi)e^{2\pi it\xi}d\xi
+x(t) = \int_{-\infty}^{\infty}S(\xi)e^{2\pi it\xi}d\xi
 \end{align}
 
 However, seeing as our samples are discretely sampled, we will need to modify our transform accordingly.
 
-The discrete Fourier transform of a discrete signal $s_0, s_1, ..., s_{N-1}$ is: \cite{Recoskie2014ConstrainedNM}
+The discrete Fourier transform of a discrete signal $x_0, x_1, ..., x_{N-1}$ is: \cite{Recoskie2014ConstrainedNM}
 
 \begin{align}
-S_k = \sum_{n=0}^{N-1}s_ne^{-2\pi ikn/N}
+S_k = \sum_{n=0}^{N-1}x_ne^{-2\pi ikn/N}
 \end{align}
 
 And our inverse is:
 
 \begin{align}
-s_n = \frac1N \sum_{k=0}^{N-1}S_ke^{2\pi ikn/N}
+x_n = \frac1N \sum_{k=0}^{N-1}S_ke^{2\pi ikn/N}
 \end{align}
 
 The issue is, due to the nature of this process, if we run the Fourier transform on our whole signal, we will only be able to analyse it as a whole, e.g. we won't be able to tell which parts of for example a song are quiet or if there are any parts with very high frequencies - we lose our temporal data.
@@ -80,7 +101,9 @@ The issue is, due to the nature of this process, if we run the Fourier transform
 To alleviate this problem, we can run Fourier transform on smaller chunks of the signal, analyse them separately and later join them back into the original signal. That is the essence of the Short-time Fourier transform.
 
 \subsubsection{Short-time Fourier transform}
-When using Short-time Fourier transform, or STFT for short, we first split the signal into smaller segments of equal size and then run Fourier transform on those separately. As such, our output can be projected into two dimensions - namely a frequency spectrum as a function of time.
+When using Short-time Fourier transform, or STFT for short, we first split the signal into smaller segments of equal size and then run Fourier transform on those separately. As such, our output can be projected into two dimensions - specifically a frequency spectrum as a function of time, a spectrogram.
+
+.. TODO picture of spectrogram ..
 
 Doing it this way will let us see how the frequency components change over time instead of taking the spectrum of the entire signal.
 
@@ -89,7 +112,7 @@ As with regular Fourier transform, we'll need to window each segment of the sign
 The continuous version is defined as: \cite{Recoskie2014ConstrainedNM}
 
 \begin{align}
-S(\tau, \xi) = \int_{-\infty}^{\infty}s(t)w(t-\tau)e^{-2\pi it\xi}dt
+S(\tau, \xi) = \int_{-\infty}^{\infty}x(t)w(t-\tau)e^{-2\pi it\xi}dt
 \end{align}
 
 where $w$ is the window function.
@@ -97,15 +120,15 @@ where $w$ is the window function.
 But again, as we have discrete samples, we will need to use a discrete short-time Fourier transform, specifically:
 
 \begin{align}
-S_{k, \xi} = \sum_{n=-\infty}^{\infty}s_nw_{n-k}e^{-2\pi i\xi n}
+S_{k, \xi} = \sum_{n=-\infty}^{\infty}x_nw_{n-k}e^{-2\pi i\xi n}
 \end{align}
 
 And similarly to the regular Fourier Transform, short-time Fourier Transform is also invertible. \cite{selesnick_2009}
 
-STFT is most commonly used for audio analysis (TODO source) but in this case it will be used as a means for our NMF compression.
+STFT is commonly used for audio analysis (TODO source) but in this case it will be used as a means for our NMF compression.
 
 \subsubsection{Modified discrete cosine transform}
-Modified discrete cosine transform, or MDCT for short, has become the dominant means of high-quality audio coding. \cite{wang_vilermo_2012_mdct}
+Modified discrete cosine transform, or MDCT for short, has become the dominant means of lossy high-quality audio coding. \cite{wang_vilermo_2012_mdct}
 
 It is what's known as a \emph{lapped transform}. This means that when transforming a block into its MDCT coefficients, the basis function overlaps the block's boundaries. \cite{Malvar:1992:SPL:531523} In practice, what this means is that while we have blocks with overlapping windows as in the short-time Fourier transform, the number of coefficients remains the same as without while retaining the relevant properties.
 
@@ -116,7 +139,7 @@ What makes MDCT simpler to work with compared to Fourier transform is that not o
 It is a linear function $f: \mathbf{R}^{2N} \rightarrow \mathbf{R}^N$, defined as: \cite{Babu2013FastAE}
 
 \begin{align}
-X(k) = \sum_{n=0}^{N-1} x(n) \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace
+M_k = \sum_{n=0}^{N-1} x_n \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace
 \end{align}
 
 for $k = 0, 1, \ldots, \frac{N}{2}-1$.
@@ -126,12 +149,12 @@ It is assumed that $x(n)$ is already windowed by an appropriate windowing functi
 MDCT is also invertible, and its inversion is defined as:
 
 \begin{align}
-\bar{x}(n) &= \sum_{k=0}^{\frac{N}{2}-1} X(k) \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace
+\bar{x}_n &= \sum_{k=0}^{\frac{N}{2}-1} M_k \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace
 \end{align}
 
 for $n = 0, 1, \ldots, N-1$.
 
-It's important to note that the inverted transformed sequence does not correspond to the original signal \cite{prince_1986_tdac_1}. To achieve perfect invertibility, we must add subsequent overlapping blocks of the inverted MDCT (IMDCT). This method is called \emph{time domain aliasing cancellation} \cite{prince_1986_tdac_2}, or TDAC for short. As the name suggests, it mainly helps remove artifacts on the boundaries between transform blocks.
+It's important to note that the inverted transformed sequence $\bar{x}_n$ by itself does not correspond to the original signal $x_n$ \cite{prince_1986_tdac_1}. To achieve perfect invertibility, we must add subsequent overlapping blocks of the inverted MDCT (IMDCT). This method is called \emph{time domain aliasing cancellation} \cite{prince_1986_tdac_2}, or TDAC for short. As the name suggests, it mainly helps remove artifacts on the boundaries between transform blocks.
 
 \section{Psychoacoustics}
 Apart from time-frequency representations being generally more compact, they also give us the ability to analyse, isolate or modify the frequency composition of a given signal. This comprises a large chunk of the audio compressing process.
