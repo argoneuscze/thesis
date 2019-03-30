@@ -54,7 +54,15 @@ Similar to MP3, Opus CELT works on the basis of quantizing MDCT coefficients, bu
 .. TODO if I have time ..
 
 \section{Compression using NMF}
-.. TODO paper128 ..
+This section is separate from the state of the art, as NMF is not really used for audio compression in practice. There is one notable example that will be covered and to an extent implemented here, for more details refer to \cite{nikunen_2010}.
 
-.. TODO ..
+The proposed method uses a metric previously formulated in \cite{Nikunen2010NoisetomaskRM} called \emph{noise-to-mask ratio}, or NMR for short. They successfully apply this metric onto non-negative matrix factorization, establishing a custom cost function to represent NMR and also propose update rules based on Euclidean distance for minimizing this cost function.
+
+Results showed that NMR performed better than other, more general cost functions. Audio compressed using NMF + NMR had better perceptual quality and managed to encode signals with lots of transient sounds in better quality. However, NMR relies on proprietary algorithms such as PEAQ \cite{peaq_2006} and an implementation is not readily available.
+
+This modified NMF is then used in what the paper refers to as \emph{object-based audio coding}, and the principle is fairly simple to understand. Instead of using MDCT for conversion to the frequency domain, they use STFT, obtaining the frequency spectrum as a set of complex values. They then take the magnitude and phase of each of these complex values to obtain the \emph{magnitude spectrogram} and \emph{phase information}.
+
+The magnitude spectrogram is then compressed using NMF (+NMR) among other things, whereas the phase information is entropy encoded separately and does not utilize NMF at all.
+
+The conclusion is that while object-based audio coding done this way achieves reasonable bit-rate and quality on the magnitude spectrogram, it is difficult to efficiently encode the phase information and as such the bit-rate of this approach proved to be too high to be usable in practice compared to other, more common, MDCT based methods.
 
