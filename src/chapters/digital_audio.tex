@@ -2,7 +2,12 @@ Sound as we know it can be defined as a physical wave travelling through air or 
 
 In the real world, these sound waves are generally composed of many different kinds of waves, with differing frequencies and amplitudes. The human ear can tell the difference between high (whistling) and low frequencies (drums), and knowledge of this will be useful later when we are discussing audio encoding.
 
-- TODO image of audio signal -
+\begin{figure}[ht]
+	\label{fig:audio_signal}
+	\caption[Example audio signal]{An example of an audio signal represented in PCM form.}
+	\centering
+	\includegraphics[width=\textwidth]{audio_signal.png}
+\end{figure}
 
 \section{Notation}
 Below is a summary of the notation this chapter will be using.
@@ -16,7 +21,7 @@ $x(t)$ & function representing the amplitude of a continuous signal at a time $t
 $x_n$ & sequence representing the amplitude of a discrete signal indexed by $n$ \\
 $w(t)$ & continuous windowing function at a time $t$ \\
 $w_n$ & discrete windowing function indexed by $n$ \\
-$X(\xi)$ & function representing the frequency component of a signal for a frequency $\xi$ \\
+%$X(\xi)$ & function representing the frequency component of a signal for a frequency $\xi$ \\
 $S(\xi)$ & the Fourier transform of a continuous signal \\
 $S_k$ & the discrete Fourier transform of a discrete signal \\
 $S(\tau, \xi)$ & the short-time Fourier transform of a continuous signal \\
@@ -59,10 +64,10 @@ PCM serves as a good base for what we are going to talk about next - Frequency d
 \subsection{Frequency domain representation}
 While it's simple to understand and work with for the computer with samples in the form of a sequence of amplitudes, it's difficult to run any sort of meaningful analysis on such data. To better grasp the structure of the audio we're working with, it would be helpful to be able to decompose it into its basic building blocks, so to speak. And that's where frequency based representation comes in.
 
-The goal here is to represent the signal as not a function of time, but rather a function of frequency $X(f)$. That is, instead of having a simple sequence of amplitudes, we will have information about the magnitude for each component from a set of frequency ranges. This description alone is generally more compact than the PCM representation \cite{bosi_goldberg_2003} on top of providing us with useful information about the signal, so it will serve as a good entry point to our compression schemes.
+The goal here is to represent the signal as not a function of time, but rather a function of frequency $X(\xi)$. That is, instead of having a simple sequence of amplitudes, we will have information about the magnitude for each component from a set of frequency ranges. This description alone is generally more compact than the PCM representation \cite{bosi_goldberg_2003} on top of providing us with useful information about the signal, so it will serve as a good entry point to our compression schemes.
 
 \subsubsection{Fourier transform}
-Fourier transform is the first and arguably the most used tool for converting a signal from a function of time $x(t)$ into a function of frequency $X(f)$.
+Fourier transform is the first and arguably the most used tool for converting a signal from a function of time $x(t)$ into a function of frequency $X(\xi)$.
 
 It is based on the \emph{Fourier series}, which is essentially a representation of a periodic function as the linear combination of sines and cosines. \cite{Shatkay:1995:FTP:864947} However, the main difference is that our function need not be periodic.
 
@@ -103,7 +108,11 @@ To alleviate this problem, we can run Fourier transform on smaller chunks of the
 \subsubsection{Short-time Fourier transform}
 When using Short-time Fourier transform, or STFT for short, we first split the signal into smaller segments of equal size and then run Fourier transform on those separately. As such, our output can be projected into two dimensions - specifically a frequency spectrum as a function of time, a spectrogram.
 
-.. TODO picture of spectrogram ..
+\begin{figure}[ht]
+	\caption[Example audio spectrogram]{An example of an audio spectrogram for the signal from Figure \ref{fig:audio_signal}.}
+	\centering
+	\includegraphics[width=\textwidth]{audio_specgram.png}
+\end{figure}
 
 Doing it this way will let us see how the frequency components change over time instead of taking the spectrum of the entire signal.
 
@@ -125,7 +134,7 @@ S_{k, \xi} = \sum_{n=-\infty}^{\infty}x_nw_{n-k}e^{-2\pi i\xi n}
 
 And similarly to the regular Fourier Transform, short-time Fourier Transform is also invertible. \cite{selesnick_2009}
 
-STFT is commonly used for audio analysis (TODO source) but in this case it will be used as a means for our NMF compression.
+STFT is commonly used for audio analysis (e.g. for generating spectrograms) but in this case it will be used as a means for our NMF compression.
 
 \subsubsection{Modified discrete cosine transform}
 Modified discrete cosine transform, or MDCT for short, has become the dominant means of lossy high-quality audio coding. \cite{wang_vilermo_2012_mdct}
@@ -186,7 +195,11 @@ The Bark scale ranges from 1 to 24 Barks, where each Bark corresponds to a singl
 
 The Bark scale is commonly used as reference for audio encoding codecs, as we will see later. Knowledge of these critical bands allows for more educated byte allocation during the quantization process when compressing a frequency domain representation.
 
-.. TODO image/table of scale ..
+\begin{figure}[ht]
+	\caption[Example audio spectrogram]{The Bark scale. Image by \href{https://commons.wikimedia.org/wiki/User:Swpb}{"Swpb"} licensed under \href{https://creativecommons.org/licenses/by-sa/4.0/deed.en}{CC BY-SA 4.0}.}
+	\centering
+	\includegraphics[width=\textwidth]{bark_scale.png}
+\end{figure}
 
 \subsection{Loudness}
 What people often decide as loudness is really called \emph{sound pressure level} and it's measured in decibels (dB), however it has some shortcomings when it comes to psychoacoustic analysis.
@@ -208,13 +221,12 @@ For example a lower frequency sound may mask one of a higher frequency, but the 
 
 There are two important different kinds of masking effects - \emph{simultaneous} masking and \emph{temporal} masking. \cite{Raissi2002TheTB}
 
-Simultaneous masking is what I have hinted at above - when there are two sounds within the same critical band, the dominant one may mask other frequencies within the same band.
-.. TODO image ..
+Simultaneous masking is what I have hinted at above - when there are two sounds within the same critical band, the dominant one may mask other frequencies within the same band. This can be compensated to a degree by increasing the volume of the masked sound.
 
 Temporal masking does not occur in the frequency domain, but the time domain. The essence is that a stronger tonal component may mask a weaker one if they appear within a small window of time in succession.
-.. TODO image  ..
 
-
-
-
-
+\begin{figure}[ht]
+	\caption[Auditory masking]{A hypothetical example of how a masker can shift the hearing threshold of a signal by 16 dB. Image by \href{http://www.highprogrammer.com/alan/}{Alan De Smet} published in the public domain.}
+	\centering
+	\includegraphics[width=0.7\textwidth]{auditory_masking.png}
+\end{figure}
