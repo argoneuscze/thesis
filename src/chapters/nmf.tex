@@ -29,12 +29,16 @@ That is, given a set of multivariate $n$-dimensional data vectors, we place thes
 \section{Classification}
 NMF is as of currently still a relevant research topic, and has been explored by researchers from many different fields including mathematicians, statisticians, computer scientists or biologists. Given the wide range of use, over time it lead to different variations and additional constraints on the algorithms. Therefore, a taxonomy system was proposed in \cite{wang_zhang_2013}, outlined below.
 
-.. TODO diagram of NMF categorization ..
+\begin{figure}[ht]
+	\caption[NMF classification]{The NMF classification as per \cite{wang_zhang_2013}.}
+	\centering
+	\includegraphics[width=\textwidth]{nmf_classification.png}
+\end{figure}
 
 \subsection{Basic NMF}
 This is the basic model which only enforces non-negativity, and which all the following ones build upon.
 
-However, due to its unconstrained nature, without any other constraints there are many possible solutions  which may lead to the algorithm's performance to vary. Further constraints outlined below help in the search of unique solutions.
+However, due to its unconstrained nature, without any other constraints there are many possible solutions  which may lead to the algorithm's performance to vary. Further constraints outlined below help in the search of unique solutions and optimizing for specific scenarios.
 
 \subsection{Constrained NMF (CNMF)}
 Constrained NMF imposes additional constraints on the resulting matrices, namely:

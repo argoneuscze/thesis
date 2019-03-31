@@ -1,0 +1,29 @@
+digraph G {
+	rankdir=TB;
+	ratio="compress";
+	node [shape="box"];
+
+	PCM [label="Input signal (PCM)"]
+	PAF [label="Polyphase\nAnalysis\nFilterbank"]
+	FFT
+	PSY [label="Psychoacoustic\nmodel"]
+	MDCT
+	QUA [label="Scaling\nand quantization"]
+	HUFF [label="Huffman\ncoding"]
+	SIDE [label="Coding of side\ninformation"]
+	BIT [label="Bitstream\nformatting"]
+	OUT [label="Encoded\nstream"]
+	
+	PCM -> FFT
+	PCM -> PAF
+	PAF -> MDCT
+	FFT -> PSY
+	PSY -> MDCT
+	PSY -> QUA
+	MDCT -> QUA
+	QUA -> HUFF
+	QUA -> SIDE
+	HUFF -> BIT
+	SIDE -> BIT
+	BIT -> OUT
+}

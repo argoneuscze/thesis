@@ -14,9 +14,14 @@ Due to its qualities of efficiently compacting energy and mitigating artifacts a
 In this section, I will elaborate on some of the more popular ones to get an idea of what considerations go into writing a modern audio codec. They are also the ones that will be used for comparison with my own encoding scheme.
 
 \subsection{MP3}
-.. TODO diagram ..
+\begin{figure}[ht]
+	\caption[MP3 encoding scheme]{The MP3 encoding scheme, simplified.}
+	\label{fig:mp3_scheme}
+	\centering
+	\includegraphics[width=0.45\textwidth]{mp3_scheme.png}
+\end{figure}
 
-MP3, or MPEG-1 Layer III has been standardized in 1991 and has since become widespread throughout a multitude of electronic devices as the de-facto standard for music storage.
+MP3, or MPEG-1 Layer III has been standardized in 1991 and has since become widespread throughout a multitude of electronic devices as the de-facto standard for music storage. Its simplified encoding scheme can be seen in Figure \ref{fig:mp3_scheme}.
 
 It's a very powerful compression/decompression scheme capable of reducing the bit-rate of an audio stream by up to a factor of 12 without any noticeable (to humans) quality degradation. In other words, to transmit CD quality audio, it needs a bitrate of 128 kbps. \cite{Raissi2002TheTB}
 
@@ -29,8 +34,6 @@ The signal is also analyzed using the Fourier transformation, which gives us fre
 Once we have the scaled and quantized data, we use the Huffman encoding to losslessly compress these values, and format this output into the final bitstream, encoding our audio.
 
 \subsection{Opus (CELT)}
-.. TODO diagram ..
-
 The Opus codec has been standardized fairly recently, in 2012 \cite{rfc6716} compared to other widespread audio codecs. Opus was created from two core technologies - Skype's SILK codec based on linear prediction, and Xiph.Org's CELT codec, based on the MDCT. \cite{opus_celt}
 
 As a result, Opus is capable of performing in three different modes:
@@ -47,8 +50,13 @@ Opus is designed with real-time constraints in mind, that is, for example networ
 
 CELT (Constrained Energy Lapped Transform) is based on MDCT similar to MP3, but the main difference is that Opus uses specifically sized bands with ranges similar to the Bark scale in order to preserve the spectral envelope of the signal.
 
-Similar to MP3, Opus CELT works on the basis of quantizing MDCT coefficients, but utilizes various kinds of prediction and focuses more on handling transients. Through various optimizations Opus achieves similar results but at a reduced bitrate.
-.. TODO source listening test ..
+Similar to MP3, Opus CELT works on the basis of quantizing MDCT coefficients, but utilizes various kinds of prediction and focuses more on handling transients, and is much more complex in general. Through various optimizations Opus achieves similar results but at a reduced bitrate.
+
+\begin{figure}[ht]
+	\caption[Comparison of various codecs]{This figure attempts to summarize the results of a collection of listening tests, comparing various codecs. Image attributed to \href{http://opus-codec.org/comparison/}{Jean-Marc Valin} and licensed under \href{https://creativecommons.org/licenses/by/3.0/}{CC BY 3.0}.}
+	\centering
+	\includegraphics[width=\textwidth]{opus_listening_test.png}
+\end{figure}
 
 \subsection{Opus (SILK)}
 .. TODO if I have time ..

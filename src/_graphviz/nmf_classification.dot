@@ -1,0 +1,9 @@
+digraph G {
+	ratio="compress";
+	node [shape="box"];
+
+	"NMF" -> {"Basic NMF" "Constrained NMF" "Structured NMF" "Generalized NMF"}
+	"Structured NMF" -> {WNMF CVNMF NMTF}
+	"Constrained NMF" -> {SPNMF ONMF DNMF MNMF}
+	"Generalized NMF" -> {"Semi-NMF" NTF NMSF KNMF}
+}
