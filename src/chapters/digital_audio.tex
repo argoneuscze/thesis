@@ -64,7 +64,11 @@ A windowing function $w_n$ is a function that is equal to $0$ outside of some ch
 
 There is no one "best window", there's usually a trade off, for example a window used to prevent aliasing will lower the accuracy of frequency identification (as is the case in the Hann window). \cite{bosi_goldberg_2003} In fact, most modern audio codecs use different kinds of windows depending on the musical characteristics of the current block and the ones that follow. \cite{Raissi2002TheTB}
 
-TODO example of modulated lapped transform image
+\begin{figure}[ht]
+	\caption[Windowing example]{An example of windowing - $\sin(x)$ windowed by MLT.}
+	\centering
+	\includegraphics[width=\textwidth]{mlt_window.png}
+\end{figure}
 
 \subsubsection{Rectangular window}
 The rectangular window is the simplest one, as it does not modify the original signal at all, and as such is often used to represent e.g. a part of a periodic signal. It's equivalent to:
@@ -113,11 +117,15 @@ Aliasing is a type of artifact that occurs when the sampling rate is too low. Du
 This can be eliminated by either choosing an appropriately higher sampling rate, or by passing the signal through a low-pass filter to eliminate the higher frequency content that would cause aliasing.
 
 \subsection{Spectral leakage}
-As we will see later, the Fourier transform (and other Fourier-related transforms) effectively projects the signal into infinity, as if it was a periodic signal. If we apply the transform an unmodified signal, it's similar to using a rectangular window on a periodic function, where the signal ends abruptly at the edges. This in turn leads to \emph{spectral leakage} - the resulting Fourier transform will produce non-zero values even for frequencies that aren't contained in the original signal at all.
+As we will see later, the Fourier transform (and other Fourier-related transforms) effectively projects the signal into infinity, as if it was a periodic signal. If we apply the transform to an unmodified signal, it's similar to using a rectangular window on a periodic function, where the signal ends abruptly at the edges. This in turn leads to \emph{spectral leakage} - the resulting Fourier transform will produce non-zero values even for frequencies that aren't contained in the original signal at all.
 
 The way to combat spectral leakage is again, by using proper windowing. By smoothing out the function using a window so that it approaches $0$ along the edges of the signal, we can mitigate some spectral leakage, although not all of it.
 
-TODO image of spectral leakage
+\begin{figure}[ht]
+	\caption[Spectral leakage example]{An example of a sine function's spectral leakage after application of a rectangular window. Image by \href{https://commons.wikimedia.org/wiki/User:Wdwd}{Walter Dvorak} published under the \href{https://creativecommons.org/licenses/by/3.0/deed.en}{CC BY 3.0} license.}
+	\centering
+	\includegraphics[width=\textwidth]{spectral_leakage.png}
+\end{figure}
 
 \subsection{Scalloping}
 A phenomena that occurs when using a discrete Fourier (or Fourier-related) transform. Since the frequencies are split into ranges rather than exact values, it's possible that a single frequency may fall into two adjacent bins, providing inaccurate frequency content readings.
