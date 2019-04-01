@@ -60,16 +60,47 @@ For example, when we sample an analogue signal, what we get back is the amplitud
 Quantization is also common in digital audio processing when we already have discrete values, e.g. when quantizing MDCT values (described later) in order to further reduce the range and allow for more efficient compression.
 
 \subsection{Windowing}
-A windowing function $w(t)$ is a function that is equal to $0$ outside of some chosen interval. It is generally symmetrical, though this is not a rule. Windowing functions are often applied to audio signals before further processing to avoid various artifacts.
+A windowing function $w_n$ is a function that is equal to $0$ outside of some chosen interval, where its value is defined by an expression. It is generally symmetrical, though this is not a rule. Windowing functions are often applied to audio signals by multiplying them with the windowing function before further processing to avoid various artifacts.
+
+There is no one "best window", there's usually a trade off, for example a window used to prevent aliasing will lower the accuracy of frequency identification (as is the case in the Hann window). \cite{bosi_goldberg_2003} In fact, most modern audio codecs use different kinds of windows depending on the musical characteristics of the current block and the ones that follow. \cite{Raissi2002TheTB}
+
+TODO example of modulated lapped transform image
 
 \subsubsection{Rectangular window}
-TODO + image
+The rectangular window is the simplest one, as it does not modify the original signal at all, and as such is often used to represent e.g. a part of a periodic signal. It's equivalent to:
+
+\begin{align}
+w_n^R = 1
+\end{align}
 
 \subsubsection{Hann window}
-TODO + image
+A Hann window is a simple sine-based window, defined as:
+
+\begin{align}
+w_n^H = \sin^2 \left( \frac{\pi n}{N} \right)
+\end{align}
+
+This window is what we'll be using most of the time with the short-time Fourier transform.
+
+\subsubsection{Modulated lapped transform}
+Modulated lapped transform (MLT) is another sine-based window, used for example in the MP3 codec. It has a comparatively low computational complexity and is simple to implement. \cite{malvar_1990} It's defined as:
+
+\begin{align}
+w_n^M = \sin \left[ \frac{\pi}{2N} \left( n + \frac12 \right) \right]
+\end{align}
+
+It is what we will be using with the MDCT due to its simplicity of implementation compared to the results it provides.
 
 \subsubsection{Kaiser-Bessel derived window}
-TODO + image
+The Kaiser-bessel derived window (KBD) is designed to be used with the modified discrete cosine transform (MDCT), and is used for example in the AC-3 codec. It's defined as follows \cite{bosi_goldberg_2003}:
+
+\begin{align}
+w_n^D = \begin{cases}
+\sqrt{\frac{\sum_{i=0}^{n}w_i}{\sum_{i=0}^{\frac{N}{2}}w_i}} & \text{if $0 \le n < \frac{N}{2}$} \\
+\sqrt{\frac{\sum_{i=0}^{N-1-n}w_i}{\sum_{i=0}^{\frac{N}{2}}w_i}} & \text{if $\frac{N}{2} \le n < N - 1$} \\
+0 & \text{otherwise}
+\end{cases}
+\end{align}
 
 \subsection{Transient}
 A transient is a high amplitude sound with a short duration. It's significant because during block-based audio encoding, if a transient occurs on the border between two blocks it may cause what's called \emph{pre-echo} - essentially a type of artifact where a sound is being heard before it should occur.
