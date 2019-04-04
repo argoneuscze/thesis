@@ -81,9 +81,6 @@ For the purposes of this thesis, we will only consider algorithms for Basic NMF.
 
 Finding a decomposition of a matrix $V$ into matrices $W$ and $H$ is an NP-hard problem, and as such, the resulting matrices are generally only approximated over a number of iterations of an optimization algorithm. What this means in practice is that it's likely a result we'll find is sub-optimal or a local minimum.
 
-\subsection{Initialization}
-.. TODO ..
-
 \subsection{Cost function}
 When using iterative updates, in each step of the process we need to evaluate the quality of the approximation. The function that does this is called the \emph{cost function}, or \emph{objective function}.
 
@@ -118,7 +115,12 @@ H_{a \mu} & \leftarrow H_{a \mu} \frac{\sum_i W_{ia} V_{i \mu} / (WH)_{i \mu}}{\
 W_{ia} & \leftarrow W_{ia} \frac{\sum_\mu H_{a \mu} V_{i \mu} / (WH)_{i \mu}}{\sum_v H_{av}}
 \end{align}
 
-.. TODO more update / cost functions used in music? itakura saito ..
+\subsection{Initialization}
+Before we can use our update rules to iteratively optimize the cost function, we need some initial value to initialize the matrices $W$ and $H$ to, first. In practice, different initializations generally yield different solutions, so this is worth considering. \cite{naik_2015_nmf_advances}
+
+The most basic way of initialization is to simply initialize the matrices with random values. This generally works decently but you somewhat lose out on controlling the composition of the matrices. A small way to improve this is to generate random matrices a couple times and pick the one with the lowest cost function value, but the issue remains.
+
+As per \cite{naik_2015_nmf_advances}, there are tons of different ways to initialize the matrices, usually relating to constraints on the matrices, e.g. initialize $H$ in such a way that none of the values are above a certain threshold etc. But given the low amount of research on audio compression using NMF, it's difficult to gauge which of these might work better for audio than others, and as such this work will not elaborate on different ones further.
 
 \section{Use in digital audio processing}
 In digital audio, Non-negative matrix factorization is mostly used as a tool for analysis rather than compression. The ability to extract hidden features from a given signal is useful for certain things.
