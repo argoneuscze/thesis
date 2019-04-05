@@ -1,14 +1,61 @@
-.. time domain compression ..
+In this chapter I will give an overview of how this audio codec will be designed, and explaining the various decisions I made along the way.
 
-compressing raw
+I have decided to call this new codec \emph{ANMF} (stands for Audio-NMF), using files with the extension \emph{.anmfx}, where \emph{x} represents the compression method.
 
-.. frequency domain compression ..
+There are currently three different ANMF format that you can choose from, and their main difference is which audio representation is being compressed by NMF. They are as follows:
 
-- compressing STFT
+\begin{description}
+	\item[ANMF-RAW] denoted by \emph{r}, compresses the signal in PCM form (time domain)
+	\item[ANMF-MDCT] denoted by \emph{m}, compresses the signal transformed with MDCT (frequency domain)
+	\item[ANMF-STFT] denoted by \emph{s}, compresses the signal transformed with STFT (frequency domain)
+\end{description}
 
-STFT
+Our target output is a simple WAVE file, preserving samples in PCM form along with some metadata.
 
-NMF
+\section{WAVE file}
+.. TODO ..
+
+\section{Encoder}
+The encoder is responsible for taking a raw audio file and encoding the data within, producing a compressed version of the original. Please refer to Figure \ref{fig:design_encoder} for a visual representation of the process.
+
+\begin{figure}[ht]
+	\label{fig:design_encoder}
+	\caption[Encoder overview]{A high level overview of the ANMF audio encoder.}
+	\centering
+	\includegraphics[width=\textwidth]{design_encoder.png}
+\end{figure}
+
+Next, each format's encoding process will be outlined.
+
+\subsection{NMF-RAW}
+.. TODO ..
+
+\subsection{NMF-MDCT}
+.. TODO ..
+
+\subsection{NMF-STFT}
+.. TODO ..
+
+\section{Decoder}
+Similar to the encoder, the decoder simply reverses the encoding process as seen in Figure \ref{fig:design_decoder}.
+
+\begin{figure}[ht]
+	\label{fig:design_decoder}
+	\caption[Decoder overview]{A high level overview of the ANMF audio decoder.}
+	\centering
+	\includegraphics[width=\textwidth]{design_decoder.png}
+\end{figure}
+
+Next, each format's decoding process will be outlined.
+
+\subsection{NMF-RAW}
+.. TODO ..
+
+\subsection{NMF-MDCT}
+.. TODO ..
+
+\subsection{NMF-STFT}
+.. TODO ..
 
 mu-law quantization, non-uniform, formula in p128 wrong (missing sgn)\
 

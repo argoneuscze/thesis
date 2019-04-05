@@ -1,0 +1,14 @@
+digraph G {
+	rankdir=LR;
+	ratio="compress";
+	node [shape="box"];
+
+	INP [label="Compressed file (.anmfx)"]
+	DEC [label="Decode\nspecified format"]	
+	EXT [label="Extract metadata\nand samples (PCM)"]	
+	SAV [label="Save audio\nfile (.wav)"]
+	
+	INP -> DEC
+	DEC -> EXT
+	EXT -> SAV
+}
