@@ -1,0 +1,16 @@
+digraph G {
+	rankdir=LR;
+	ratio="compress";
+	node [shape="box"];
+
+	PCM [label="Audio data (PCM)"]
+	MDCT [label="MDCT"]
+	SPLT [label="Split the MDCT\nmatrix into smaller\nchunks"]
+	NMF [label="NMF on each\nchunk"]
+	WRITE [label="Write NMF\nfactorized matrices"]
+	
+	PCM -> MDCT
+	MDCT -> SPLT
+	SPLT -> NMF
+	NMF -> WRITE
+}

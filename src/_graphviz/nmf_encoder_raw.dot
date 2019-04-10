@@ -1,0 +1,16 @@
+digraph G {
+	rankdir=LR;
+	ratio="compress";
+	node [shape="box"];
+
+	PCM [label="Audio data (PCM)"]
+	CHUNK [label="Padded data\nchunks"]
+	RSHP [label="Re-shape into\n2D matrices"]
+	NMF [label="NMF"]
+	WRITE [label="Write NMF\nfactorized matrices"]
+	
+	PCM -> CHUNK
+	CHUNK -> RSHP
+	RSHP -> NMF
+	NMF -> WRITE
+}

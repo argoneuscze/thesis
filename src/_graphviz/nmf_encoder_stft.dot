@@ -1,0 +1,43 @@
+digraph G {
+	rankdir=TB;
+	ratio="compress";
+	node [shape="box"];
+
+	PCM [label="Audio data (PCM)"]
+	STFT [label="STFT"]
+	PHA [label="Phase\nspectrogram"]
+	MAG [label="Magnitude\nspectrogram"]
+	SPLT [label="Split into\nchunks"]
+	NMF [label="NMF on each\nchunk"]
+	W [label="Weights\nmatrix"]
+	H [label="Coefficients\nmatrix"]
+	WMU [label="mu-law\ncompanding"]
+	WSCAL [label="Scaling and conversion\n to integers"]
+	HMU [label="mu-law\ncompanding"]
+	SQUAN [label="Quantization"]
+	PQUAN [label="Quantization"]
+	SHUFF [label="Huffman\ncoding"]
+	PHUFF [label="Huffman\ncoding"]
+	WRITE [label="Write\nto file"]
+	
+	PCM -> STFT
+	
+	STFT -> PHA
+	STFT -> MAG
+	
+	PHA -> PQUAN
+	PQUAN -> PHUFF
+	PHUFF -> WRITE
+	
+	MAG -> SPLT
+	SPLT -> NMF
+	NMF -> W
+	NMF -> H
+	W -> WMU
+	H -> HMU
+	WMU -> WSCAL
+	WSCAL -> WRITE
+	HMU -> SQUAN
+	SQUAN -> SHUFF
+	SHUFF -> WRITE
+}
