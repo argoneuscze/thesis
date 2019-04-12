@@ -74,7 +74,7 @@ Next, each format's encoding process will be outlined (third step in the figure)
 
 ANMF-RAW works on the principle of applying NMF directly to the PCM audio samples $x_n$. However, the samples are initially an array of 16-bit signed integers, and as such, they need to be processed first before NMF can be used.
 
-A chunk shape is specified to determine how many rows and columns each matrix will have before NMF. The sample array is then padded with zeros to ensure there are enough elements at the end of the array to ensure every matrix can have the same shape and number of elements. The amount of padding must be written to the output so that we know the length of the original array when decoding.
+A chunk shape is specified to determine how many rows and columns each matrix will have before NMF. We choose a target matrix shape of $1152 \times 200$ to match the amount of samples per frame in the other methods.The sample array is then padded with zeroes to ensure there are enough elements at the end of the array to ensure every matrix can have the same shape and number of elements. The amount of padding must be written to the output so that we know the length of the original array when decoding.
 
 Once the array is padded, we iterate over the samples and split them into equal chunks of size $rows*columns$. This array is then "folded" to produce a matrix of the desired shape. We then obtain a matrix of signed integers, so in order to be able to use NMF, we first need to get rid of all the negative values. To do that, we increment each chunk by the absolute value of its smallest element, guaranteeing that the lowest value in the matrix is $\ge 0$.
 
@@ -87,7 +87,8 @@ Once we have this matrix, we proceed by applying NMF on it, obtaining the basis 
 		\hline
 		Bytes (relative) & Data type & Description \\ \hline
 		0-3 & uint32 & amount of zeroes used to pad the samples \\
-		4-? & data\_chunk[] & NMF-compressed data chunks (refer to Table \ref{tab:anmf_raw_data}) \\
+		4-7 & uint32 & amount of chunks \\
+		8-? & data\_chunk[] & NMF-compressed data chunks (refer to Table \ref{tab:anmf_raw_data}) \\
 		\hline
 	\end{tabular}
 \end{table}
@@ -98,8 +99,8 @@ Once we have this matrix, we proceed by applying NMF on it, obtaining the basis 
 	\begin{tabular}{|c|c|l|}
 		\hline
 		Bytes (relative) & Data type & Description \\ \hline
-		0-7 & float64 & minimum value that the matrix was incremented by \\
-		7-? & matrix(float32) & matrix $W$ \\
+		0-7 & float64 & absolute value that the matrix was incremented by \\
+		8-? & matrix(float32) & matrix $W$ \\
 		?-? & matrix(float32) & matrix $H$ \\
 		\hline
 	\end{tabular}
@@ -113,7 +114,43 @@ Once we have this matrix, we proceed by applying NMF on it, obtaining the basis 
 	\includegraphics[width=\textwidth]{nmf_mdct.png}
 \end{figure}
 
-.. TODO ..
+In ANMF-MDCT, as the name suggests, the PCM input will be transformed using MDCT as per Section \ref{sec:mdct}. Since this is a lapped transform, each transformed block will have a 50\% overlap with the following block. We choose a frame size of $2N = 1152$ and split the signal into blocks of that size, thus each block will contain $N = 576$ coefficients from its own block, and another $576$ from the following one.
+
+The decision to have a block size of $N = 576$ stems from the fact that this will give us the same amount of frequency resolution that e.g. MP3 uses (as seen in Section \ref{sec:mp3}), which proved to be enough for human hearing.
+
+As before, we first pad the signal at the end with zeroes to align it to the desired block size. To prevent loss of data in the first and the last block due to the overlapping, we further pad the signal by an array of zeroes, equal in size to the size of a block, that is $N$ zeroes both at the beginning and the end of the signal.
+
+Then, we apply a windowing function on each block to bring the values near the edges closer to $0$ to help mitigate spectral leakage. We use the MLT window $w_n^M$ as defined in Section \ref{sec:mlt}.
+
+Finally, we apply the MDCT on each of the windowed blocks and obtain a matrix of MDCT coefficients in the form of real numbers.
+
+This matrix is then split into smaller chunks. For example, if the MDCT matrix contains $576$ rows and $1100$ columns, we might split it into submatrices sized $576 \times 200$, with the last one being $576 \times 100$, as no padding is necessary here. This amount of chunks is written to the output. NMF is then ran on each of the chunks separately and the decomposition matrices serialized.
+
+\begin{table}[htbp]\caption{ANMF-MDCT data structure}
+	\label{tab:anmf_mdct_file}
+	\centering
+	\begin{tabular}{|c|c|l|}
+		\hline
+		Bytes (relative) & Data type & Description \\ \hline
+		0-3 & uint32 & amount of zeroes used to pad the samples \\
+		4-7 & uint32 & amount of MDCT submatrix chunks \\
+		8-? & data\_chunk[] & NMF-compressed MDCT chunks (refer to Table \ref{tab:anmf_mdct_data}) \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[htbp]\caption{ANMF-MDCT structure of each data chunk}
+	\label{tab:anmf_mdct_data}
+	\centering
+	\begin{tabular}{|c|c|l|}
+		\hline
+		Bytes (relative) & Data type & Description \\ \hline
+		0-7 & float64 & absolute value that the matrix was incremented by \\
+		8-? & matrix(float32) & matrix $W$ \\
+		?-? & matrix(float32) & matrix $H$ \\
+		\hline
+	\end{tabular}
+\end{table}
 
 \subsection{ANMF-STFT}
 \begin{figure}[ht]
@@ -122,10 +159,53 @@ Once we have this matrix, we proceed by applying NMF on it, obtaining the basis 
 	\includegraphics[width=0.6\textwidth]{nmf_stft.png}
 \end{figure}
 
-.. TODO ..
+The design of ANMF-STFT is based on the solution suggested in \cite{nikunen_2010} with some changes along with only utilizing open source solutions.
+
+Like with ANMF-MDCT, we choose a frame size of $N = 1152$, leading to a frequency resolution of $576$ bins. We begin by properly padding the signal to $N$ so that it's possible to be split into equal parts. We then use STFT with 50\% overlap and a block size of $N$, which means we end up with twice the coefficients compared to MDCT, but this is not a major issue.
+
+During STFT, we must again window each block, leading to overlapping windows. We use the Hann window $w_n^H$ for this (as defined in Section \ref{sec:hann}).
+
+Once STFT is finished, we end up with a matrix of Fourier transform coefficients in the form of complex numbers. Trying to apply NMF on the complex numbers directly would yield similar results to ANMF-MDCT, so we have to approach this differently.
+
+If we visualise the complex valued elements in the complex plane, we can instead represent each element $z$ as two separate values:
+
+\begin{description}
+	\item[magnitude] also called the modulus, geometrically it's the distance from 0
+	\item[phase] also called the argument, geometrically it's the angle from the real axis
+\end{description}
+
+To obtain the phase $\phi$ of a complex number $z = x + iy$, we can use the following formula:
+
+\begin{align}
+\phi(z) = \arg(z) = \arctantwo(y,x)
+\end{align}
+
+And to obtain the magnitude $|z|$ of the complex number:
+
+\begin{align}
+|z| = \sqrt{x^2 + y^2}
+\end{align}
+
+By calculating the magnitude and phase of every element in the STFT matrix individually, we obtain the magnitude spectrogram and the phase spectrogram respectively. We now need to encode both of them individually.
+
+For the phase matrix, my experiments showed that applying NMF on it leads to a very noticeable loss in quality, so instead I opted for a different solution that ultimately ends up saving more space than NMF would.
+
+The phase matrix contains values ranging from $-\pi$ to $\pi$. These values are uniformly quantized into 8 levels as per Section \ref{sec:unif_quant}. Due to the relative frequency of the boundary values $-\pi$ and $\pi$, a mid-tread quantizer is used. These quantized values are then losslessly encoded using Huffman coding using $n_p = 3$ bits per value and written to output.
+
+\begin{figure}[ht]
+	\caption[ANMF-STFT quantized phase frequencies]{Frequency of each quantization level in the phase spectrogram.}
+	\label{fig:stft_quant_freq}
+	\centering
+	\includegraphics[width=\textwidth]{stft_phase_quant_freq.png}
+\end{figure}
+
+.. TODO magnitude spectrogram encoding ..
+
+\subsubsection{Huffman encoding}
+.. TODO Huffman ..
 
 \section{Decoder}
-Similar to the encoder, the decoder simply reverses the encoding process as seen in Figure \ref{fig:design_decoder}, and in each of the methods.
+Similar to the encoder, the decoder simply reverses the encoding process as seen in Figure \ref{fig:design_decoder}. As this process is fairly straightforward for each of the methods, it won't be elaborated on further.
 
 \begin{figure}[ht]
 	\caption[Decoder overview]{A high level overview of the ANMF audio decoder.}
@@ -133,25 +213,3 @@ Similar to the encoder, the decoder simply reverses the encoding process as seen
 	\centering
 	\includegraphics[width=\textwidth]{design_decoder.png}
 \end{figure}
-
-Next, each format's decoding process will be outlined.
-
-\subsection{ANMF-RAW}
-.. TODO ..
-
-\subsection{ANMF-MDCT}
-.. TODO ..
-
-\subsection{ANMF-STFT}
-.. TODO ..
-
-mu-law quantization, non-uniform, formula in p128 wrong (missing sgn)\
-
-- compressing MDCT
-
-unusable, needs to be compressed consistently / losslessly
-
-.. file structure ..
-
-diagram for both time domain and frequency domain compression
-

@@ -18,6 +18,12 @@ $t$ & symbol representing a time value in seconds \\
 $\tau$ & symbol representing a "slow" time, time index with a lower resolution than $t$ \\
 $\xi$ & symbol representing a frequency value in hertz \\
 $F_s$ & symbol representing a sampling rate of an audio signal \\
+$z$ & symbol representing a complex number \\
+$\phi(z)$ & symbol representing the phase of a complex number \\
+$|z|$ & symbol representing the magnitude of a complex number \\
+$Q(x)$ & function representing a uniform quantizer \\
+$\Delta$ & symbol representing the step size of a uniform quantizer \\
+$F(x)$ & function representing $\mu$-law compression \\
 $x(t)$ & function representing the amplitude of a continuous signal at a time $t$ \\
 $x_n$ & sequence representing the amplitude of a discrete signal indexed by $n$ \\
 $w(t)$ & continuous windowing function at a time $t$ \\
@@ -53,11 +59,60 @@ F_s \ge 2F_{max}
 Looking at it from another angle, it also means that given a sampling rate $F_s$, the highest frequency we can record is equal to $\frac{F_s}{2}$, and that is what's called the \emph{Nyquist frequency} or \emph{Nyquist limit}.
 
 \subsection{Quantization}
-Quantization is a process where we restrict a large set of values, possibly continuous, into a smaller set, generally discrete.
+Quantization is a process where we restrict a large set of values, possibly continuous, into a smaller set, generally discrete. Each of the values from the smaller set represents a \emph{quantization level}, and has a range of values that fall into it.
 
 For example, when we sample an analogue signal, what we get back is the amplitude represented by a voltage, which can be considered a set of infinitely many real numbers. In order to use these values on our computers for digital processing, these voltages must first be quantized. \cite{bosi_goldberg_2003} An example of a common choice would be signed 16-bit PCM, where each sample is converted to an integer between $-2^{15} = -32768$ and $2^{15}-1 = 32767$, representing the quantized amplitude for the given sample.
 
 Quantization is also common in digital audio processing when we already have discrete values, e.g. when quantizing MDCT values (described later) in order to further reduce the range and allow for more efficient compression.
+
+There are two kinds of quantization: uniform and non-uniform. The main difference between them is that when using uniform quantization, the quantization levels are uniformly spaced, i.e. the difference between any two quantized values is the same when the value is converted to the original range, whereas with non-uniform quantization the difference between different levels may vary.
+
+\subsubsection{Uniform quantization}
+\label{sec:unif_quant}
+The practical part uses uniform quantization extensively, therefore it's important to mention some extra details surrounding it.
+
+In a uniform quantizer, there is a step size, denoted $\Delta$, which is the value difference between two successive quantization levels.
+
+We differentiate between a \emph{mid-rise quantizer} and a \emph{mid-tread} quantizer. The main difference between them is how they handle quantization of the area around $0$. \cite{gersho_1977}
+
+If we imagine quantization in the form of a staircase function, then in a mid-rise quantizer the "rise" of the stairs is the part that crosses the $0$ point, whereas in a mid-tread quantizer it's the "flat" part of the staircase-like function (that one treads on), hence the naming.
+
+In practice, in the context of a uniform quantizer, this means that a mid-rise quantizer (as opposed to a mid-tread quantizer) does not have a value to represent the zero value of the given range, but instead has the zero value as a classification threshold.
+
+A mid-tread quantizer is defined as:
+\begin{align}
+Q_t(x) = \Delta \cdot \left\lfloor \frac{x}{\Delta} + \frac12 \right\rfloor
+\end{align}
+
+A mid-rise quantizer is defined as:
+\begin{align}
+Q_r(x) = \Delta \cdot \left( \left\lfloor \frac{x}{\Delta} \right\rfloor + \frac12 \right)
+\end{align}
+
+\subsubsection{$\mu$-law companding}
+\label{sec:mulaw}
+$\mu$-law (or mu-law) companding is an algorithm employing non-uniform quantization in order to reduce the quantization error and required bandwidth of a signal transmitting system. In practice it is mostly used in telephony and other applications that deal with a limited dynamic range.
+
+\emph{Companding} is combined from the words \emph{compression} and \emph{expanding}. Compression because the non-uniform quantization reduces the amount of bits needed to encode the peak amplitudes, and expanding on the other end to cancel the effect of the non-uniform compressor. There is one more intermediate step between them, specifically uniform quantization of the compressed signal. \cite{brokish_lewis_1997}
+
+It has several important effects:
+\begin{itemize}
+	\item the larger values get a bit smaller by getting rid of the least significant bits
+	\item the lower values become higher due to conversion to a logarithmic scale
+	\item some perceptible noise is masked due to boosting of the intended signal
+\end{itemize}
+
+$\mu$-law compression is defined as: \cite{cisco_2017}
+\begin{align}
+F(x) &= \sgn(x) \frac{\ln(1+\mu|x|)}{\ln(1+\mu)} & \text{for $-1 \le x \le 1$}
+\end{align}
+
+And the inverse function for expanding:
+\begin{align}
+F^{-1}(y) &= \sgn(y)\left(\frac{1}{\mu}\right)((1+\mu)^{|y|}-1) & \text{for $-1 \le y \le 1$}
+\end{align}
+
+Where $\mu$ is the compression parameter. The higher the value of $\mu$, the closer to $0$ a given value $x$ will be.
 
 \subsection{Windowing}
 A windowing function $w_n$ is a function that is equal to $0$ outside of some chosen interval, where its value is defined by an expression. It is generally symmetrical, though this is not a rule. Windowing functions are often applied to audio signals by multiplying them with the windowing function before further processing to avoid various artifacts.
@@ -78,6 +133,7 @@ w_n^R = 1
 \end{align}
 
 \subsubsection{Hann window}
+\label{sec:hann}
 A Hann window is a simple sine-based window, defined as:
 
 \begin{align}
@@ -87,6 +143,7 @@ w_n^H = \sin^2 \left( \frac{\pi n}{N} \right)
 This window is what we'll be using most of the time with the short-time Fourier transform.
 
 \subsubsection{Modulated lapped transform}
+\label{sec:mlt}
 Modulated lapped transform (MLT) is another sine-based window, used for example in the MP3 codec. It has a comparatively low computational complexity and is simple to implement. \cite{malvar_1990} It's defined as:
 
 \begin{align}
@@ -231,6 +288,7 @@ And similarly to the regular Fourier Transform, short-time Fourier Transform is 
 STFT is commonly used for audio analysis (e.g. for generating spectrograms) but in this case it will be used as a means for our NMF compression.
 
 \subsubsection{Modified discrete cosine transform}
+\label{sec:mdct}
 Modified discrete cosine transform, or MDCT for short, has become the dominant means of lossy high-quality audio coding. \cite{wang_vilermo_2012_mdct}
 
 It is what's known as a \emph{lapped transform}. This means that when transforming a block into its MDCT coefficients, the basis function overlaps the block's boundaries. \cite{Malvar:1992:SPL:531523} In practice, what this means is that while we have blocks with overlapping windows as in the short-time Fourier transform, the number of coefficients remains the same as without while retaining the relevant properties.
