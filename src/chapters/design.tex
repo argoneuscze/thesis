@@ -52,6 +52,21 @@ When serializing matrices to a file, the structure in Table \ref{tab:anmf_serial
 	\end{tabular}
 \end{table}
 
+There's also one more kind of matrix, a matrix using Huffman encoded quantized values. This will be denoted by a "quant\_matrix" datatype. For its specification please see Table \ref{tab:anmf_serial_quant_matrix}.
+
+\begin{table}[htbp]\caption{Serialized quantized matrix structure}
+	\label{tab:anmf_serial_quant_matrix}
+	\centering
+	\begin{tabular}{|c|c|l|}
+		\hline
+		Bytes (relative) & Data type & Description \\ \hline
+		0-3 & uint32 & amount of rows in the matrix \\
+		4-7 & uint32 & length $L$ of the Huffman encoded byte stream \\
+		8-($8+L-1$) & byte[] & Huffman encoded byte stream representing the matrix \\
+		\hline
+	\end{tabular}
+\end{table}
+
 \section{Encoder}
 The encoder is responsible for taking a raw audio file and encoding the data within, producing a compressed version of the original. Please refer to Figure \ref{fig:design_encoder} for a visual representation of the process.
 
@@ -195,7 +210,7 @@ The phase matrix contains values ranging from $-\pi$ to $\pi$. These values are 
 Using these frequencies, we are able to then construct a Huffman coding table (refer to Section \ref{sec:huffman}) and use it to losslessly encode the quantized phase matrix using at most 4 bits per value.
 
 \begin{figure}[ht]
-	\caption[ANMF-STFT quantized phase frequencies]{Frequency of each quantization level in the phase spectrogram.}
+	\caption[ANMF-STFT quantized phase frequencies]{Frequency of each quantization level in the phase spectrogram. Data taken from the average of all the example audio files.}
 	\label{fig:stft_phase_quant_freq}
 	\centering
 	\includegraphics[width=\textwidth]{stft_phase_quant_freq.png}
@@ -206,9 +221,12 @@ The magnitude spectrogram is where we actually use NMF. As it is effectively a m
 On each submatrix we then run basic random-initialized Euclidean-based NMF, obtaining the weight matrix $W$ and coefficient matrix $H$.
 
 For the next step, we apply $\mu$-law compression to both the decomposition matrices, as defined in Section \ref{sec:mulaw}. In order to be able to do that, we first scale both matrices to the range $[0, 1]$. We do this by applying the following formula to all elements in both matrices:
+
 \begin{align}
 M'_{ij} = \frac{M_{ij} - \min(M)}{|\max(M) - \min(M)|}
 \end{align}
+
+To restore the original scale later, we need to save both the minimum and maximum value, otherwise they will be lost in the non-uniform quantization.
 
 For the $\mu$-law compression, we experiment with the value of $\mu$ later, but a good start is $\mu_W = 10^4$ and $\mu_H = 10^5$. We do this because we want to lower the amount of bits needed to represent each value, without losing the values near zero - that would lead to a large loss of quality, or in some cases, loss of most of the signal.
 
@@ -219,7 +237,7 @@ However, in the case of the coefficient matrix $H$, we can go a lot further. We 
 Similarly to the phase matrix, we take these quantized values and look at their frequencies. The results of this analysis are visible on Figure \ref{fig:stft_quant_freq}.
 
 \begin{figure}[ht]
-	\caption[ANMF-STFT quantized magnitude coefficient frequencies]{Frequency of each quantization level in the decomposed coefficients matrix of the magnitude spectrogram.}
+	\caption[ANMF-STFT quantized magnitude coefficient frequencies]{Frequency of each quantization level in the decomposed coefficients matrix of the magnitude spectrogram. Data taken from the average of all the example audio files.}
 	\label{fig:stft_quant_freq}
 	\centering
 	\includegraphics[width=\textwidth]{stft_quant_freq.png}
@@ -227,9 +245,36 @@ Similarly to the phase matrix, we take these quantized values and look at their 
 
 Using this information, we can construct another Huffman coding table, separate for this matrix. As we can see, even despite the $\mu$-law compression, a lot of values still fall to a quantized value of $0$.
 
-In a Huffman table from these frequencies, we then assemble the shortest code to the value $0$, i.e. we only need 1 bit. The longest code in a table constructed this way for 32 levels of quantization will only require 11 bits. Overall, we save a lot of space saving the matrix this way as opposed to storing the values as 32-bit floats.
+In a Huffman table from these frequencies, we then assemble the shortest code to the value $0$, i.e. we only need 1 bit. The longest code in a table constructed this way for 32 levels of quantization will only require 11 bits. Overall, we save a lot of space saving the matrix this way as opposed to storing the values as 32-bit floats or integers.
 
-.. TODO file structure ..
+\begin{table}[htbp]\caption{ANMF-STFT data structure}
+	\label{tab:anmf_stft_file}
+	\centering
+	\begin{tabular}{|c|c|l|}
+		\hline
+		Bytes (relative) & Data type & Description \\ \hline
+		0-3 & uint32 & amount of zeroes used to pad the samples \\
+		4-7 & uint32 & amount of STFT submatrix chunks \\
+		8-? & quant\_matrix & quantized phase matrix \\
+		?-? & data\_chunk[] & NMF-compressed magnitude chunks (refer to Table \ref{tab:anmf_stft_data}) \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[htbp]\caption{ANMF-STFT structure of each magnitude submatrix}
+	\label{tab:anmf_stft_data}
+	\centering
+	\begin{tabular}{|c|c|l|}
+		\hline
+		Bytes (relative) & Data type & Description \\ \hline
+		0-7 & float64 & absolute value that the matrix was incremented by \\
+		8-15 & float64 & minimum value before scaling to $[0, 1]$ \\
+		16-23 & float64 & maximum value before scaling to $[0, 1]$ \\
+		24-? & matrix(uint32) & $\mu$-law compressed matrix $W$ \\
+		?-? & quant\_matrix & quantized $\mu$-law compressed matrix $H$ \\
+		\hline
+	\end{tabular}
+\end{table}
 
 \subsubsection{Huffman encoding}
 \label{sec:huffman}
@@ -263,7 +308,9 @@ queue $\leftarrow$ new PriorityQueue()\;
 }
 \end{algorithm}
 
-Algorithm \ref{alg:huffman} describes the compressing process, at the end of which we obtain a Huffman tree. By traversing this tree from the root and assigning every left child a $0$ and every right child a $1$ and concatenating these bits as we reach the symbols in the leafs, we obtain the Huffman code for the given symbol. The asymptotic complexity of this algorithm is $\mathcal{O}(n \log n)$.
+Algorithm \ref{alg:huffman} describes the compression process, at the end of which we obtain a Huffman tree. By traversing this tree from the root and assigning every left child a $0$ and every right child a $1$ and concatenating these bits as we reach the symbols in the leafs, we obtain the Huffman code for the given symbol. The asymptotic complexity of this algorithm is $\mathcal{O}(n \log n)$, essentially we need $\mathcal{O}(\log n)$ time to determine the highest priority in the queue, and there are $\mathcal{O}(n)$ iterations.
+
+Often, the dictionary itself has to be encoded as well, but as the frequencies are roughly the same for each audio file, the tree can be fixed directly into the implementation.
 
 \section{Decoder}
 Similar to the encoder, the decoder simply reverses the encoding process as seen in Figure \ref{fig:design_decoder}. As this process is fairly straightforward for each of the methods, it won't be elaborated on further.
