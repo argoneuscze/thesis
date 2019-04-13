@@ -228,7 +228,7 @@ M'_{ij} = \frac{M_{ij} - \min(M)}{|\max(M) - \min(M)|}
 
 To restore the original scale later, we need to save both the minimum and maximum value, otherwise they will be lost in the non-uniform quantization.
 
-For the $\mu$-law compression, we experiment with the value of $\mu$ later, but a good start is $\mu_W = 10^4$ and $\mu_H = 10^5$. We do this because we want to lower the amount of bits needed to represent each value, without losing the values near zero - that would lead to a large loss of quality, or in some cases, loss of most of the signal.
+For the $\mu$-law compression, we experiment with the value of $\mu$ later, but a good start is $\mu_W = 10^4$ and $\mu_H = 10^5$. We do this because we want to lower the amount of bits needed to represent each value, without losing the values near zero - that would lead to a large loss of quality, or in some cases, loss of the signal itself.
 
 In the weight matrix, we then convert the compressed values into 32-bit unsigned integers, as going to values below that proved to cause loss of signal data, and this integer matrix is then serialized into the file.
 

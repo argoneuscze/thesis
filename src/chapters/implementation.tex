@@ -1,6 +1,29 @@
-This chapter will explain the specific details of implementing the audio codec outlined in the previous chapter.
+This chapter explains the specific details of implementing the audio codec outlined in the previous chapter.
 
-\section{Encoder}
+The codec was implemented entirely using \emph{Python 3} (x64) \cite{python3_ref} and the source code is available both as part of this thesis and on my \href{https://github.com/argoneuscze/AudioNMF}{personal GitHub profile}.
+
+The codec could be roughly split into three parts:
+
+\begin{description}
+	\item[Command line utility] the command line interface (CLI), interacts with the user
+	\item[Audio library] a set of classes and functions responsible for reading/writing audio files
+	\item[Compression library] a set of classes and functions responsible for encoding and decoding ANMF files
+\end{description}
+
+\section{Command line utility}
+The command line part of the program was created using the \emph{click} \cite{py_click} library. This library lets you create command line interfaces in a descriptive manner without having to manually read user input. This helps prevent errors regarding unexpected parameters and such. It also automatically generates the help message describing the various options and arguments, all of which makes it suitable for a project like this.
+
+The CLI lets you specify which kind of compression you want to use, between ANMF-RAW, ANMF-MDCT and ANMF-STFT, defaulting to ANMF-STFT. When decompressing, it automatically determines the compression type from the file's extension.
+
+The bulk of the work of the command line utility is to pass the input file's handle to the audio library and obtain a reference to the parsed audio data. This data is then passed to the compression library along with a reference to the output file handle, and once the target file is compressed or decompressed, the program returns.
+
+\section{Audio library}
+.. TODO ..
+
+\section{Compression library}
+.. TODO ..
+
+\subsection{Encoder}
 .. process of encoding ..
 
 \subsection{NMF-RAW}
@@ -10,9 +33,22 @@ TODO
 TODO describe MDCT as transformed DCT-IV (mdct.py)
 
 \subsection{NMF-STFT}
-
+.. TODO ..
 .. application of NMF ..
 
 .. variables ..
 
-\section{Decoder}
+\subsection{Decoder}
+.. TODO ..
+
+\section{Utility}
+.. TODO ..
+
+\subsection{Transforms}
+.. TODO ..
+
+\subsection{Helper functions}
+.. TODO ..
+
+\subsection{Other scripts}
+tl;dr matplotlib
