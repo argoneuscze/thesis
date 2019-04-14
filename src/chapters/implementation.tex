@@ -1,6 +1,6 @@
 This chapter explains the specific details of implementing the audio codec outlined in the previous chapter.
 
-The codec was implemented entirely using \emph{Python 3} (x64) \cite{python3_ref} and the source code is available both as part of this thesis and on my \href{https://github.com/argoneuscze/AudioNMF}{personal GitHub profile}.
+The codec was implemented entirely using \emph{Python 3} (x64) \cite{python3_ref} and the source code is available both as part of this thesis and on my personal GitHub profile \href{https://github.com/argoneuscze/AudioNMF}{[link]}.
 
 The codec could be roughly split into three parts:
 
@@ -10,45 +10,276 @@ The codec could be roughly split into three parts:
 	\item[Compression library] a set of classes and functions responsible for encoding and decoding ANMF files
 \end{description}
 
+\section{Used 3rd party libraries}
+The codec uses several libraries for things where a tried and tested method is both faster and more reliable than implementing my own. A brief description of each of them follows.
+
+\subsection{click}
+The \verb|Click| \cite{py_click} library lets you create command line interfaces in a descriptive manner without having to manually read user input. This helps prevent errors regarding unexpected parameters and such. It also automatically generates the help message describing the various options and arguments, all of which makes it suitable for a project like this.
+
+\subsection{pytest}
+\verb|pytest| \cite{py_pytest} is a framework for writing and executing tests in Python. To ensure certain functions work correctly and give expected results, several unit tests have been written.
+
+\subsection{dahuffman}
+To create Huffman trees and use Huffman coding, a library called \verb|dahuffman| \cite{py_dahuffman} was utilized.
+
+It determines the frequencies either from a dictionary containing $value \rightarrow frequency$ pairs, or it infers them automatically from existing data (as per Section \ref{sec:huffman}). Once the frequencies are determined, the library is capable of losslessly encoding and decoding arbitrary data containing the symbols from the Huffman tree into a serializable byte array.
+
+If needed, the Huffman table including the exact code for each symbol can be printed to validate it works correctly.
+
+A wrapper class was made around this library called \verb|HuffmanCoder|, to facilitate easier usage and to be able to easily separate different coders using varying dictionaries. It has convenience methods \verb|encode_int_matrix| and \verb|decode_int_matrix|.
+
+When encoding using the encoding method, it flattens the matrix into an array, then \verb|dahuffman| encodes the array using the associated Huffman table, and finally the function returns both the bytes and the amount of rows in the original matrix.
+
+Decoding does the reverse - it takes these bytes and the amount of rows, decodes the bytes into an array of values, and then re-shapes the array into the original matrix.
+
+\subsection{SciPy}
+\verb|SciPy| \cite{py_scipy} is short for \emph{Scientific Python} and as the name suggests, this library provides the bulk of the mathematical support for the implementation.
+
+\verb|SciPy| as a whole is more of a stack, or software ecosystem, containing various sub-libraries (covered below). However, the \verb|SciPy| library itself provides some algorithms which are used as described later.
+
+\subsubsection{NumPy}
+\verb|NumPy| \cite{py_numpy} is part of the \verb|SciPy| stack and its most important feature for us is that it provides us with an easy way to create and manipulate N-dimensional array objects. In our case, for the most part it's 2D matrices.
+
+It has a friendly syntax and all the core functions for creating matrices, mapping functions over them, multiplying them etc., all of which are very important. It also supports complex numbers and operations on them seamlessly.
+
+Even though it is a Python library, a lot of its performance critical parts are written in lower level languages such as C and are optimized for complex calculations.
+
+\verb|NumPy| is heavily utilized in this work, as the problem of NMF mostly concerns 2D matrices and \verb|NumPy| is ideal for working with those.
+
+\subsubsection{Matplotlib}
+\verb|Matplotlib| \cite{py_matplotlib} is also part of the \verb|SciPy| stack and it's best described as a Python plotting library, capable of producing various (primarily 2D) plots and diagrams from data.
+
+As it's closely integrated with \verb|SciPy|, it can natively plot data structures created by e.g. \verb|NumPy| without any boilerplate code necessary.
+
+\verb|Matplotlib| is responsible for most of the diagrams visible in this thesis.
+
 \section{Command line utility}
-The command line part of the program was created using the \emph{click} \cite{py_click} library. This library lets you create command line interfaces in a descriptive manner without having to manually read user input. This helps prevent errors regarding unexpected parameters and such. It also automatically generates the help message describing the various options and arguments, all of which makes it suitable for a project like this.
+The command line part of the program (and the entry point) was created using the \verb|Click| library.
 
 The CLI lets you specify which kind of compression you want to use, between ANMF-RAW, ANMF-MDCT and ANMF-STFT, defaulting to ANMF-STFT. When decompressing, it automatically determines the compression type from the file's extension.
 
 The bulk of the work of the command line utility is to pass the input file's handle to the audio library and obtain a reference to the parsed audio data. This data is then passed to the compression library along with a reference to the output file handle, and once the target file is compressed or decompressed, the program returns.
 
 \section{Audio library}
-.. TODO ..
+The audio library is capable of reading samples from audio files, or creating audio files from samples, in both cases the only supported format right now is 16-bit signed PCM WAV.
+
+To facilitate reading and writing WAV files, I use the methods contained in the
+\verb|scipy.io.wavfile| namespace, specifically \verb|scipy.io.wavfile.read| and \verb|scipy.io.wavfile.write|.
+
+When a WAV file is read, its raw samples and metadata are stored in an internal class called \verb|AudioData|. This class can then either call the compression library to save it as a compressed ANMF file, or it may call into \verb|SciPy| again to save it into a WAV file.
 
 \section{Compression library}
-.. TODO ..
+The compression library is a collection of three classes:
 
-\subsection{Encoder}
-.. process of encoding ..
+\begin{description}
+	\item[NMFCompressorRaw] class responsible for compressing and decompressing ANMF-RAW data
+	\item[NMFCompressorMDCT] class responsible for compressing and decompressing ANMF-MDCT data
+	\item[NMFCompressorSTFT] class responsible for compressing and decompressing ANMF-STFT data
+\end{description}
 
-\subsection{NMF-RAW}
-TODO
+Each of those has two functions: \verb|compress(audio_data, file_handle)| and \verb|decompress(file_handle, audio_data)|. For compression, it reads the audio data and writes it to the target file. For decompression, it reads the raw data from the file and creates a new \verb|AudioData| object, updating the reference with the decompressed data.
 
-\subsection{NMF-MDCT}
-TODO describe MDCT as transformed DCT-IV (mdct.py)
+The encoding process has already been described in Section \ref{sec:encoder}, so I will only include specific implementation details here. For the decoding process, just as before, it's doing the same, but inverse operations in the same order, so it will not be elaborated on in detail.
 
-\subsection{NMF-STFT}
-.. TODO ..
-.. application of NMF ..
+Unless mentioned otherwise, all matrix operations are implemented using \verb|NumPy| and its associated data structures and functions. Writing data to file is done using the \verb|struct.pack| function from the native Python library. During decoding, when the audio data is finalized, it must be converted back to a signed 16-bit integer, so that it can be saved to a WAV file.
 
-.. variables ..
+\subsection{Utility functions}
+To avoid code repetition, a lot of functionality is shared between the various methods using different helper functions. The most important ones are described below.
 
-\subsection{Decoder}
-.. TODO ..
+\subsubsection{Matrix (de)serialization}
+There are two core functions for matrix serialization and deserialization to/from a file:
 
-\section{Utility}
-.. TODO ..
+\begin{itemize}
+	\item \verb|serialize_matrix(fd, matrix, dtype='f')|
+	\item \verb|deserialize_matrix(fd, dtype='f')|
+\end{itemize}
 
-\subsection{Transforms}
-.. TODO ..
+For serialization, the input matrix is taken and converted to the target datatype, by default using a 32-bit float, but this can be changed by the caller0. Then, two 32-bit unsigned integers are written representing the amount of rows and columns in the matrix. After that, the matrix is flattened row-wise and each value is written to the file individually.
 
-\subsection{Helper functions}
-.. TODO ..
+Deserialization works on the same principle. First we need to read the amount of rows and columns, and then read $rows \times columns \times sizeof(datatype)$ bytes to obtain a data array, which is then re-shaped to the original matrix and returned.
 
-\subsection{Other scripts}
-tl;dr matplotlib
+\subsubsection{Array padding}
+If we want to run some transformation on an array of values, we may need the array's length to be divisible by a certain number, to be able to split it into equal parts.
+
+There is a utility function for this with the signature \verb|array_pad(array, n)|, where $array$ is the array we want to pad and \verb|n| is the number whose multiple the array's length should be.
+
+We first find the necessary padding by calculating $padding = -length(array) \mod n$ and then add that amount of zeroes to the end of the array, returning both the new array and the amount of padding. The padded zeroes need to be removed again during decoding, otherwise we'll end up with a different signal than the original.
+
+There is a variant of this function for convenience called \verb|array_pad_split(array, n)|, which does the same as the former, but also splits the array into $n$-sized chunks, returning a list of the new subarrays and the padding at the end.
+
+\subsubsection{Matrix splitting}
+Similarly to the previous functions, there are times where have a matrix and we want to split it into smaller matrices. There is a function for this called \verb|matrix_split(matrix, n)|.
+
+It takes an input matrix $x \times y$, and splits it into $\left\lfloor \frac{x}{n} \right\rfloor$ submatrices, each sized $n \times y$. There is no padding necessary in this case.
+
+\subsubsection{Range scaling}
+There are a few instances where a value (or more often, an entire matrix of values) needs to be scaled within a certain range, e.g. for $\mu$-law companding.
+
+The design part already describes a simple equation to scale a range of values to the $[0,1]$ range (Equation \ref{equ:scale_01}), but the actual implementation allows scaling from an arbitrary range to an arbitrary range. This function is called is \verb|scale_val| and you can see its code in Listing \ref{lst:scale_val}.
+
+\begin{lstlisting}[caption={Function for scaling value ranges}, label={lst:scale_val}, language=Python]
+def scale_val(x, old_min, old_max, new_min, new_max):
+	old_range = abs(old_max - old_min)
+	new_range = abs(new_max - new_min)
+	val = (((x - old_min) / old_range) * new_range) + new_min
+	return val
+\end{lstlisting}
+
+\subsubsection{Uniform quantization}
+In ANMF-STFT, it's often needed to uniformly quantize a range of values into $N$ levels. To make this easier, a special class \verb|UniformQuantizer| was implemented. It has three parameters:
+
+\begin{description}
+	\item[min\_val] the minimum value in the range
+	\item[max\_val] the maximum value in the range
+	\item[levels] the desired amount of quantization levels
+\end{description}
+
+Internally, it uses a mid-tread quantizer as defined in Equation \ref{equ:midtread_quant}. Rather than returning the quantized value itself, it returns an index in the range $[0, levels-1]$.
+
+This means, that given a \verb|UniformQuantizer| and an index of a quantized value, it can trivially determine the actual quantized value $x$ as:
+
+\begin{align}
+x = min\_val + index \cdot step
+\end{align}
+
+Where step is defined as:
+
+\begin{align}
+step = \frac{max\_val - min\_val}{levels - 1}
+\end{align}
+
+It has two methods: \verb|quantize_value(value)| and \verb|dequantize_index(index)|, depending on what you want to do.
+
+\subsubsection{NMF helpers}
+This set of functions helps use NMF by doing any processing necessary both before and after and serves as a sort of interface between the codec and NMF. It includes three functions:
+
+\begin{itemize}
+	\item \verb|nmf_matrix(matrix, max_iter, rank)|
+	\item \verb|nmf_matrix_original(W, H, min_val)|
+	\item \verb|increment_by_min(matrix)|
+\end{itemize}
+
+\verb|increment_by_min| takes an input matrix, finds $min\_val = |\min(matrix)|$, and increments every element in the matrix by $min\_val$, ensuring that the matrix does not contain any negative values.
+
+\verb|nmf_matrix| takes an input matrix, applies \verb|increment_by_min| on it and then calls NMF, obtaining the weight and coefficient matrices. It then returns both of those matrices along with the minimum value it was initially incremented by.
+
+\verb|nmf_matrix_original| takes the decomposition matrices $W$ and $H$ along with the minimum value $min\_val$, multiplies the two matrices and subtracts $min\_val$ from each element of the new matrix, to ensure the original range of values is preserved. It then returns the final approximated matrix.
+
+\subsection{NMF implementation}
+Basic NMF has been implemented in a class called \verb|NMF|. It's a basic implementation for approximating a matrix $V$ as a product of two matrices $WH$.
+
+The class constructor takes six different arguments:
+
+\begin{enumerate}
+	\item input matrix
+	\item maximum number of iterations
+	\item approximation rank
+	\item initialization function
+	\item cost function
+	\item update function
+\end{enumerate}
+
+There are a few important functions:
+
+\begin{itemize}
+\item The \verb|validate()| ensures that the input matrix does not contain any negative values, raising an exception otherwise.
+\item Cost function evaluation is done by the \verb|eval_cost()| function.
+\item \verb|factorize()| stands at the core of the class as it does the actual factorization, returning the factors $W$ and $H$. Please refer to Listing \ref{lst:nmf_fact} for the source code.
+\end{itemize}
+
+In its default settings, it uses the Euclidean cost function (Equation \ref{equ:cost_euc}) and Euclidean updates (Equation \ref{equ:update_euc}), with the initial elements of $W$ and $H$ being randomly initialized from the range $[0, \max(V)]$.
+
+\begin{lstlisting}[caption={Python code for the factorize function}, language=Python, label={lst:nmf_fact}]
+def factorize(self):
+	self.initialize(self)
+	last_cost = None
+	for i in range(self.max_iter):
+		self.update(self)
+		cost = self.eval_cost(self)
+		if cost == last_cost:
+		break
+	last_cost = cost
+	return self.W, self.H
+\end{lstlisting}
+
+\subsection{ANMF-RAW}
+In my implementation of the ANMF-RAW method, there are three parameters that can be changed:
+
+\begin{description}
+	\item[CHUNK\_SHAPE] a 2-tuple containing the number of rows and columns that specifies the shape of each chunk before NMF is applied
+	\item[NMF\_MAX\_ITER] maximum number of iterations of NMF before the algorithm is stopped
+	\item[NMF\_RANK] target rank of the NMF approximation
+\end{description}
+
+If \verb|CHUNK_SHAPE| is set to \verb|None|, the entire array will be turned into a square matrix of dimensions $\left\lceil\sqrt{N}\right\rceil \times \left\lceil\sqrt{N}\right\rceil$, where $N$ is the amount of samples in the audio signal for the given channel. However, this generally leads to a huge loss in quality and it is therefore recommended to always specify a shape tuple.
+
+I use the utility function \verb|array_pad_split| to first split the samples into equal parts of size corresponding to the shape of the desired matrix. Then, each of these parts is re-shaped into the proper shape using \verb|numpy.reshape|, and the values are converted from signed 16-bit integer to a signed 32-bit integer to be able to increment the values in it. The amount of chunks along with the extra padding at the end is then written to the output.
+
+For each submatrix from the original sample array, we apply NMF using the utility function \verb|nmf_matrix| to calculate the NMF, and then write the minimum value to the file along with the serialized matrices $W$ and $H$.
+
+\subsection{ANMF-MDCT}
+ANMF-MDCT uses the following parameters:
+
+\begin{description}
+	\item[FRAME\_SIZE] how many samples a frame should contain, determines frequency resolution, must be an even number
+	\item[NMF\_CHUNK\_SIZE] number that specifies the number of frames in each submatrix before NMF is applied
+	\item[NMF\_MAX\_ITER] maximum number of iterations of NMF before the algorithm is stopped
+	\item[NMF\_RANK] target rank of the NMF approximation
+\end{description}
+
+As no easy to use library was available, I had to implement MDCT on my own.
+
+The signal needs to first be padded to block size using \verb|array_pad|. Before we can apply MDCT, the signal is windowed using the MLT window, i.e. in every frame of size $N = FRAME\_SIZE$, we apply Equation \ref{equ:mlt} to every sample.
+
+In the implementation, there are two different algorithms for calculating the MDCT of the input signal. One is called \verb|mdct_slow| and the other \verb|mdct_fast|.
+
+The slow variant is a direct implementation of Equation \ref{equ:mdct} with the inverse following Equation \ref{equ:imdct}. Unfortunately, as the name suggests, it is rather slow for use in production and only served as a reference for unit testing the fast algorithm.
+
+The fast variant instead relies on two things:
+
+\begin{enumerate}
+	\item MDCT can be directly derived from a Discrete cosine transform (DCT) \cite{Babu2013FastAE}
+	\item DCT can be calculated quickly with the help of fast Fourier transform (FFT) \cite{makhoul_1980}
+\end{enumerate}
+
+Specifically, MDCT can be derived from a type 4 DCT (DCT-IV). We take each block of $FRAME\_SIZE$ samples and split it into four equal parts $(a, b, c, d)$. Then, due to the boundary conditions, the MDCT of this block is equal to a DCT-IV of the inputs $(-c_R-d, a-b_R)$, where $x_R$ refers to $x$ in reverse order. To calculate the DCT-IV of the resulting array, we use the function \verb|scipy.fftpack.dct(input, type=4)|. We normalize the resulting array by dividing every element in it by $2$, making its output equal to the slow algorithm. The function finishes by returning the MDCT coefficient matrix along with the length of padding at the end of the array.
+
+Once we have our MDCT, the resulting MDCT matrix is split using \verb|matrix_split(mdct, NMF_CHUNK_SIZE)|. We write the length of the padding followed by the amount of the split submatrices as 32-bit unsigned integers.
+
+Then, for each MDCT submatrix, we apply the utility function \verb|nmf_matrix|, write the minimum value and then serialize both the matrices.
+
+The decoding process is fairly straightforward other than inverting the MDCT, so that will be described next.
+
+If we want to get the inverse MDCT (IMDCT), it gets a bit tricky. We first run inverse DCT-IV by using \verb|scipy.fftpack.idct(input, type=4)|, giving us back the array in the form of $(-c_R-d, a-b_R)$, which we need to turn back into $(a, b, c, d)$. By cleverly inverting, reversing and concatenating these sub-arrays, we are able to obtain an array in the form of $(a-b_R, b-a_R, c+d_R, d+c_R)$ (notice that some of the values are redundant). We apply the window again and multiply all the elements by two (to cancel out the division in the MDCT) and obtain nearly the original array. As the final step, we need to cancel out the "extra" values such as $-b_R$. To do that, we take two adjacent overlapping blocks and add them together, leaving us with the original array $(a, b, c, d)$.
+
+\subsection{ANMF-STFT}
+ANMF-STFT uses the same parameters as ANMF-MDCT and some additional ones:
+
+\begin{description}
+	\item[FRAME\_SIZE] how many samples a frame should contain, determines frequency resolution, must be an even number
+	\item[NMF\_CHUNK\_SIZE] number that specifies the number of frames in each submatrix before NMF is applied
+	\item[NMF\_MAX\_ITER] maximum number of iterations of NMF before the algorithm is stopped
+	\item[NMF\_RANK] target rank of the NMF approximation
+	\item[MU\_LAW\_W] parameter $\mu$ for $\mu$-law companding of the weight matrix $W$
+	\item[MU\_LAW\_H] parameter $\mu$ for $\mu$-law companding of the coefficient matrix $H$
+\end{description}
+
+\verb|SciPy| contains a function for the entire STFT calculation, called \verb|scipy.signal.stft|. It handles windowing, overlapping and padding by itself, so it is very handy.
+
+At its core, it uses the fast Fourier transform \cite{Oppenheim:2009:DSP:1795494}. We choose an overlap of 50\% by putting the number of data points per segment to $FRAME\_SIZE$ and the number of overlapping points to $\frac{FRAME\_SIZE}{2}$. For the window function, we choose the Hann window (Section \ref{sec:hann}).
+
+Before further processing, the output STFT matrix is transposed (for the shape to be consistent with the matrix from MDCT), and then we find the phase matrix and the magnitude matrix by calling \verb|numpy.angle| and \verb|numpy.absolute|, respectively, on every element of the matrix.
+
+The magnitude matrix is split into chunks of size $NMF\_CHUNK\_SIZE$ using \verb|matrix_split|, while the phase matrix is quantized using a \verb|UniformQuantizer| in range $[-\pi, \pi]$ with 8 quantization levels and this matrix of quantized values is then Huffman encoded.
+
+Several things are then written to the file in order: the amount of magnitude submatrices (uint32), number of rows in the phase matrix (uint32), length of the Huffman encoded phase matrix (uint32) and the Huffman encoded phase matrix bytes themselves.
+
+The magnitude submatrices are then processed in order. First we use basic NMF via \verb|nmf_matrix|, then scale both the decomposition matrices to the $[0, 1]$ range using \verb|scale_val|, and then $\mu$-law compress both using their respective $MU\_LAW\_[W|H]$ parameter as per Equation \ref{equ:mu_law_compress}.
+
+For matrix $W$, we use $scale_val$ to scale it to range $[0, 2^{32}]$ and change its datatype to unsigned 32-bit integers.
+
+In the case of matrix $H$, it is uniformly quantized in the range $[0, 1]$ with 32 quantization levels, and then similar to the phase matrix, it's Huffman encoded using its associated Huffman table.
+
+Then, for each submatrix, in order, we write to the file: the value we need to subtract after multiplying $WH$ (float64), the original minimum and maximum of the matrix before it was scaled to $[0, 1]$ (float64), the scaled 32-bit integer matrix $W$ using \verb|serialize_matrix|, and finally the encoded matrix $H$ in the same manner as the phase matrix.
+
+When decoding, the process is again the same but in reverse order. To invert the STFT, we call \verb|scipy.signal.istft| using the same parameters as before. It estimates the original signal by using the algorithm described in \cite{griffin_1984}. For this algorithm to work properly and attain perfect reconstruction of the original signal, the COLA constraint (Constant OverLap Add) \cite{bors_2012} must be met. Using a Hann window at 50\% overlap guarantees the satisfaction of this constraint.

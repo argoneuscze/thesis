@@ -24,7 +24,7 @@ Given a non-negative matrix $V$, find non-negative matrix factors $W$ and $H$ su
 V \approx WH
 \end{align}
 
-That is, given a set of multivariate $n$-dimensional data vectors, we place these vectors in the columns of a $n \times m$ matrix $V$, where $m$ is the amount of examples we have. We then approximately factorize this matrix into two different matrices: a $n \times r$ matrix $W$ and a $r \times m$ matrix $H$. We generally choose $r < \min(n,m)$ (though this is not required) so that the two matrices are smaller than the original matrix $V$, essentially compressing it. \cite{nmf_algorithms}
+That is, given a set of multivariate $n$-dimensional data vectors, we place these vectors in the columns of a $n \times m$ matrix $V$, where $m$ is the amount of examples we have. We then approximately factorize this matrix into two different matrices: a $n \times r$ matrix $W$ and a $r \times m$ matrix $H$. We generally choose $r < \min(n,m)$ (though this is not required) so that the two matrices are smaller than the original matrix $V$, essentially compressing it. \cite{nmf_algorithms} The variable $r$ is usually referred to as the \emph{rank} of the approximation.
 
 \section{Classification}
 NMF is as of currently still a relevant research topic, and has been explored by researchers from many different fields including mathematicians, statisticians, computer scientists or biologists. Given the wide range of use, over time it lead to different variations and additional constraints on the algorithms. Therefore, a taxonomy system was proposed in \cite{wang_zhang_2013}, outlined below.
@@ -87,6 +87,7 @@ When using iterative updates, in each step of the process we need to evaluate th
 There are two simple commonly used functions. Firstly, we can use squared Euclidean distance: \cite{pentti_pmf_1997}
 
 \begin{align}
+\label{equ:cost_euc}
 ||A-B||^2 = \sum_{ij}(A_{ij} - B_{ij})^2
 \end{align}
 
@@ -104,6 +105,7 @@ With the cost function in place, we now need a function to apply each iteration 
 For non-increasing Euclidean distance $||V - WH||$, if $W$ and $H$ are at a stationary point of distance, we may use these rules:
 
 \begin{align}
+\label{equ:update_euc}
 H_{a \mu} & \leftarrow H_{a \mu} \frac{(W^TV)_{a \mu}}{(W^TWH)_{a \mu}} \\
 W_{ia} & \leftarrow W_{ia} \frac{(VH^T)_{ia}}{(WHH^T)_{ia}}
 \end{align}
@@ -116,7 +118,7 @@ W_{ia} & \leftarrow W_{ia} \frac{\sum_\mu H_{a \mu} V_{i \mu} / (WH)_{i \mu}}{\s
 \end{align}
 
 \subsection{Initialization}
-Before we can use our update rules to iteratively optimize the cost function, we need some initial value to initialize the matrices $W$ and $H$ to, first. In practice, different initializations generally yield different solutions, so this is worth considering. \cite{naik_2015_nmf_advances}
+Before we can use our update rules to iteratively optimize the cost function, we need some initial value to initialize the matrices $W$ and $H$ to, first. In practice, different initializations generally yield different solutions, so it may be worth considering. \cite{naik_2015_nmf_advances}
 
 The most basic way of initialization is to simply initialize the matrices with random values. This generally works decently but you somewhat lose out on controlling the composition of the matrices. A small way to improve this is to generate random matrices a couple times and pick the one with the lowest cost function value, but the issue remains.
 

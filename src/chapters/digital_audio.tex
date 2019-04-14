@@ -81,6 +81,7 @@ In practice, in the context of a uniform quantizer, this means that a mid-rise q
 
 A mid-tread quantizer is defined as:
 \begin{align}
+\label{equ:midtread_quant}
 Q_t(x) = \Delta \cdot \left\lfloor \frac{x}{\Delta} + \frac12 \right\rfloor
 \end{align}
 
@@ -104,6 +105,7 @@ It has several important effects:
 
 $\mu$-law compression is defined as: \cite{cisco_2017}
 \begin{align}
+\label{equ:mu_law_compress}
 F(x) &= \sgn(x) \frac{\ln(1+\mu|x|)}{\ln(1+\mu)} & \text{for $-1 \le x \le 1$}
 \end{align}
 
@@ -147,6 +149,7 @@ This window is what we'll be using most of the time with the short-time Fourier 
 Modulated lapped transform (MLT) is another sine-based window, used for example in the MP3 codec. It has a comparatively low computational complexity and is simple to implement. \cite{malvar_1990} It's defined as:
 
 \begin{align}
+\label{equ:mlt}
 w_n^M = \sin \left[ \frac{\pi}{2N} \left( n + \frac12 \right) \right]
 \end{align}
 
@@ -293,13 +296,14 @@ Modified discrete cosine transform, or MDCT for short, has become the dominant m
 
 It is what's known as a \emph{lapped transform}. This means that when transforming a block into its MDCT coefficients, the basis function overlaps the block's boundaries. \cite{Malvar:1992:SPL:531523} In practice, what this means is that while we have blocks with overlapping windows as in the short-time Fourier transform, the number of coefficients remains the same as without while retaining the relevant properties.
 
-As the name suggests, MDCT is based on the Discrete cosine transform, namely \emph{DCT-IV}, where the main difference is the addition of lapping mentioned above.
+As the name suggests, MDCT is based on the Discrete cosine transform \cite{ahmed_1974}, namely \emph{DCT-IV}, where the main difference is the addition of lapping mentioned above. The type then specifies the boundary conditions, to determine what values the transform should have for points outside the original range.
 
 What makes MDCT simpler to work with compared to Fourier transform is that not only do we not need more coefficients despite overlapping, they are also real numbers as opposed to complex numbers, lowering the amount of bytes necessary to store them.
 
 It is a linear function $f: \mathbf{R}^{2N} \rightarrow \mathbf{R}^N$, defined as: \cite{Babu2013FastAE}
 
 \begin{align}
+\label{equ:mdct}
 M_k = \sum_{n=0}^{N-1} x_n \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace
 \end{align}
 
@@ -310,6 +314,7 @@ It is assumed that $x(n)$ is already windowed by an appropriate windowing functi
 MDCT is also invertible, and its inversion is defined as:
 
 \begin{align}
+\label{equ:imdct}
 \bar{x}_n &= \sum_{k=0}^{\frac{N}{2}-1} M_k \cos \left\lbrace \frac{(2n+1+ \frac{N}{2} )(2k+1)\pi }{2N} \right\rbrace
 \end{align}
 

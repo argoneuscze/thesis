@@ -68,6 +68,7 @@ There's also one more kind of matrix, a matrix using Huffman encoded quantized v
 \end{table}
 
 \section{Encoder}
+\label{sec:encoder}
 The encoder is responsible for taking a raw audio file and encoding the data within, producing a compressed version of the original. Please refer to Figure \ref{fig:design_encoder} for a visual representation of the process.
 
 \begin{figure}[ht]
@@ -139,7 +140,7 @@ Then, we apply a windowing function on each block to bring the values near the e
 
 Finally, we apply the MDCT on each of the windowed blocks and obtain a matrix of MDCT coefficients in the form of real numbers.
 
-This matrix is then split into smaller chunks. For example, if the MDCT matrix contains $576$ rows and $1100$ columns, we might split it into submatrices sized $576 \times 200$, with the last one being $576 \times 100$, as no padding is necessary here. This amount of chunks is written to the output. Basic random-initialized Euclidean-based NMF is then ran on each of the chunks separately and the decomposition matrices serialized.
+This matrix is then split into smaller chunks. For example, if the MDCT matrix contains $576$ rows and $1100$ columns, we might split it into submatrices sized $576 \times 200$, with the last one being $576 \times 100$, as no padding is necessary here. This amount of chunks is written to the output. We increment the MDCT matrix by its lowest value to get rid of negative values. Basic random-initialized Euclidean-based NMF is then ran on each of the chunks separately and the decomposition matrices serialized.
 
 \begin{table}[htbp]\caption{ANMF-MDCT data structure}
 	\label{tab:anmf_mdct_file}
@@ -218,11 +219,12 @@ Using these frequencies, we are able to then construct a Huffman coding table (r
 
 The magnitude spectrogram is where we actually use NMF. As it is effectively a matrix of signal amplitudes, it's less prone to noticeable quality loss if the values deviate a little. We split the magnitude matrix column-wise into smaller submatrices, e.g. $chunk_size = 500$.
 
-On each submatrix we then run basic random-initialized Euclidean-based NMF, obtaining the weight matrix $W$ and coefficient matrix $H$.
+For each submatrix we then increment it by its lowest value to get rid of negative values and then run basic random-initialized Euclidean-based NMF, obtaining the weight matrix $W$ and coefficient matrix $H$.
 
 For the next step, we apply $\mu$-law compression to both the decomposition matrices, as defined in Section \ref{sec:mulaw}. In order to be able to do that, we first scale both matrices to the range $[0, 1]$. We do this by applying the following formula to all elements in both matrices:
 
 \begin{align}
+\label{equ:scale_01}
 M'_{ij} = \frac{M_{ij} - \min(M)}{|\max(M) - \min(M)|}
 \end{align}
 
