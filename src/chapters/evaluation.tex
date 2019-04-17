@@ -1,9 +1,44 @@
-.. how is audio evaluated ..
+In this section you will find an evaluation of the different algorithms, including experiments with various parameters for them and comparison to existing solutions from Section \ref{sec:stateoftheart}.
 
-.. gstpeaq ..
+\section{Methodology}
+Audio compression quality is most often evaluated using a series of listening tests (such as the one pictured in Figure \ref{fig:opus_listening_test}). However, due to a lack of resources to conduct such a thing, a different method must be used - although they are generally not as accurate.
 
-.. how does gstpeaq work ..
+One of the most used methods for objectively evaluating perceptible audio quality is PEAQ \cite{peaq_2006}, however its specifications are insufficient, and its implementations proprietary. The exact algorithm and parameters aren't known for the most part. It comes in two variants:
 
-.. how and what did I test ..
+\begin{description}
+	\item[PEAQ Basic] intended for real-time use
+	\item[PEAQ Advanced] a more comprehensive model, intended for non real-time use
+\end{description}
 
+Even though neither of these is directly available, luckily, there are a few open-source alternatives that try to implement similar algorithms, with their quality measured by comparing their output to PEAQ, and by proxy, to listening tests.
+
+One of the more prominent open-source solutions is GstPEAQ, which according to its paper \cite{gstpeaq_paper} performs better than the other implementations. So while it does not conform to the PEAQ recommendation directly, its results are within an acceptable margin and thus this thesis will use GstPEAQ for quality evaluation.
+
+\section{GstPEAQ}
+GstPEAQ is a plugin for GStreamer \cite{gstreamer_2016} (a pipeline-based multimedia framework) and its source code is freely available at \cite{gstpeaq_paper}. It implements both the Basic and Advanced mode of PEAQ as specified in \cite{peaq_2006}, however as the standard is under-specified, educated guesses must be taken at points.
+
+And just like PEAQ, the algorithm's main output is a value known as \emph{Objective Difference Grade} (ODG), which evaluates the perceptible impairment (quality difference) between the provided audio and the reference audio. It uses various psychoacoustic "features" of the signal to determine the grade, the details of which won't be covered here - please refer to either paper for specifics.
+
+The ODG scale contains real values from $0$ to $-4$, ranging from imperceptible difference to very annoying for the human ear. Please refer to Table \ref{tab:odg_scale} to see the full table.
+
+\begin{table}[htbp]\caption{PEAQ - Objective Difference Grade table}
+	\label{tab:odg_scale}
+	\centering
+	\begin{tabular}{|c|l|}
+		\hline
+		ODG & Impairment description \\ \hline
+		$0.0$ & Imperceptible \\
+		$-1.0$ & Perceptible, but not annoying \\
+		$-2.0$ & Slightly annoying \\
+		$-3.0$ & Annoying \\
+		$-4.0$ & Very annoying \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\section{Evaluating results}
+.. TODO ..
+
+.. what am i testing ..
+.. how am i testing ..
 .. comparison to other formats ..
