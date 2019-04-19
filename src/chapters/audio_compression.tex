@@ -66,7 +66,7 @@ This section is separate from the state of the art, as NMF is not really used fo
 
 The proposed method uses a metric previously formulated in \cite{Nikunen2010NoisetomaskRM} called \emph{noise-to-mask ratio}, or NMR for short. They successfully apply this metric onto non-negative matrix factorization, establishing a custom cost function to represent NMR and also propose update rules based on Euclidean distance for minimizing this cost function.
 
-Results showed that NMR performed better than other, more general cost functions. Audio compressed using NMF + NMR had better perceptual quality and managed to encode signals with lots of transient sounds in better quality. However, NMR relies on proprietary algorithms such as PEAQ \cite{peaq_2006} and an implementation is not readily available.
+Results showed that NMR performed better than other, more general cost functions. Audio compressed using NMF + NMR had better perceptual quality and managed to encode signals with lots of transient sounds in better quality. However, NMR in its current form is part of a proprietary algorithm known as PEAQ \cite{peaq_2006}, and while the standard is public, it is under-specified and a conforming implementation is not available, so this work will not use it.
 
 This modified NMF is then used in what the paper refers to as \emph{object-based audio coding}, and the principle is fairly simple to understand. Instead of using MDCT for conversion to the frequency domain, they use STFT, obtaining the frequency spectrum as a set of complex values. They then take the magnitude and phase of each of these complex values to obtain the \emph{magnitude spectrogram} and \emph{phase information}.
 

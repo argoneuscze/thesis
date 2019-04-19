@@ -37,8 +37,43 @@ The ODG scale contains real values from $0$ to $-4$, ranging from imperceptible 
 \end{table}
 
 \section{Evaluating results}
-.. TODO ..
+In this section we will experiment with various parameters for all the encoding methods, find a good compromise between bitrate and ODG, and then compare those results to the reference codings (MP3, Opus) at similar bitrates.
 
-.. what am i testing ..
-.. how am i testing ..
-.. comparison to other formats ..
+The evaluating process will work in these steps:
+
+\begin{enumerate}
+	\item compress example WAV file using ANMF
+	\item decompress ANMF back to a WAV file
+	\item measure ODG between old and new WAV file
+\end{enumerate}
+
+In the case of MP3 or Opus files, they will be decoded to WAV for comparison.
+
+\subsection{Audio examples}
+There's a total of four example audio files in WAV format that will be used for testing. Please refer to Table \ref{tab:audio_examples} for a list. All of the examples are $\sim10$ second excerpts from audio files using 44.1 kHz sampling rate and 16-bit signed integer samples. These files can be found in the \verb|examples| folder of the implementation.
+
+\begin{table}[htbp]\caption{Audio example summary}
+	\label{tab:audio_examples}
+	\centering
+	\begin{tabular}{|c|c|l|}
+		\hline
+		ID & File name & Description \\ \hline
+		$00$ & \verb|piano16t.wav| & Clear sounding piano sounds \\
+		$01$ & \verb|henry16t.wav| & Average quality English voice \\
+		$02$ & \verb|swave16t.wav| & Simple electronic music \\
+		$03$ & \verb|taleena16t.wav| & Complex music including lyrics \\
+		\hline
+	\end{tabular}
+\end{table}
+
+\subsection{ANMF-RAW}
+.. TODO experiment with parameters and calculate bitrate ..
+
+\subsection{ANMF-MDCT}
+.. TODO experiment with parameters and calculate bitrate ..
+
+\subsection{ANMF-STFT}
+.. TODO experiment with parameters and calculate bitrate ..
+
+\subsection{Comparison}
+.. TODO compare the "best" from the previous 3 vs MP3/Opus ..
