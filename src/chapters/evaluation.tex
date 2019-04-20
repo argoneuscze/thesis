@@ -50,12 +50,12 @@ The evaluating process will work in these steps:
 In the case of MP3 or Opus files, they will be decoded to WAV for comparison.
 
 \subsection{Audio examples}
-There's a total of four example audio files in WAV format that will be used for testing. Please refer to Table \ref{tab:audio_examples} for a list. All of the examples are $\sim10$ second excerpts from audio files using 44.1 kHz sampling rate and 16-bit signed integer samples. These files can be found in the \verb|examples| folder of the implementation.
+There's a total of four example audio files in WAV format that will be used for testing. Please refer to Table \ref{tab:audio_examples} for a list. All of the examples are $\sim5-10$ second excerpts from audio files using 44.1 kHz sampling rate and 16-bit signed integer samples. These files can be found in the \verb|examples| folder of the implementation.
 
-\begin{table}[htbp]\caption{Audio example summary}
+\begin{table}[htbp]\caption{List of tested audio files}
 	\label{tab:audio_examples}
 	\centering
-	\begin{tabular}{|c|c|l|}
+	\begin{tabular}{|c|c|c|c|l|}
 		\hline
 		ID & File name & Description \\ \hline
 		$00$ & \verb|piano16t.wav| & Clear sounding piano sounds \\
@@ -66,8 +66,84 @@ There's a total of four example audio files in WAV format that will be used for 
 	\end{tabular}
 \end{table}
 
+\subsection{Bitrate}
+The bitrate is the amount of bits that a computer needs to process per a unit of time, in this context it means how many bits are needed to play back 1 second of an audio file.
+
+To find the bitrate of a WAV file, we can use the following equation:
+
+\begin{align}
+bitrate = channelCount \cdot samplingRate \cdot bitsPerSample
+\end{align}
+
+So in regards to compressing the example files, our target bitrate is at most $2 \cdot 44100 \cdot 16 = 1411200$ bits per second (or $\sim 1411$ kbps).
+
+To calculate the number of elements in an NMF-approximated matrix $V$ of size $m \times n$ with approximation rank $r$, we can use the following equation:
+
+\begin{align}
+\label{equ:nmf_size}
+size(NMF(V)) = r(m+n)
+\end{align}
+
+\emph{Proof:} NMF approximates a matrix $m \times n$ into two matrices $m \times r$ and $r \times n$, therefore the total size is $mr + rn = r(m+n)$.
+
 \subsection{ANMF-RAW}
-.. TODO experiment with parameters and calculate bitrate ..
+For ANMF-RAW, we need to find a compromise between the size of one chunk and the rank of the NMF. First, we'll fix the shape to $1152 \times 200$ and experiment with the rank.
+
+The maximum number of iterations has been fixed to 3000, since past that point the cost function is almost stable as seen in Figure \ref{fig:anmf_raw_cost_func}.
+
+\begin{figure}[ht]
+	\caption[ANMF-RAW cost function]{The value of the cost function per iteration during NMF in ANMF-RAW at rank $= 30$.}
+	\label{fig:anmf_raw_cost_func}
+	\centering
+	\includegraphics[width=\textwidth]{anmf_raw_cost_func.png}
+\end{figure}
+
+In Table \ref{tab:anmf_raw_rank}, you can see the results of changing the rank of the NMF approximation. The rows correspond to the example IDs from Table \ref{tab:audio_examples}, and the columns correspond to the ODG for different rank values.
+
+\begin{table}[htbp]\caption{ANMF-RAW rank experiment results}
+	\label{tab:anmf_raw_rank}
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		ID & rank 30 & rank 40 & rank 45 & rank 60 & rank 75 \\ \hline
+		$00$ & $-3.873$ & $-3.830$ & $-3.811$ & $-3.749$ & $-3.650$ \\
+		$01$ & $-3.908$ & $-3.902$ & $-3.895$ & $-3.861$ & $-3.844$ \\
+		$02$ & $-3.868$ & $-3.850$ & $-3.837$ & $-3.800$ & $-3.759$ \\
+		$03$ & $-3.744$ & $-3.519$ & $-3.361$ & $-2.825$ & $-2.461$ \\		
+		\hline
+	\end{tabular}
+\end{table}
+
+It's also worth mentioning that the runtime necessary for compression scales with the rank, as seen in Table \ref{tab:anmf_raw_runtime}.
+
+\begin{table}[htbp]\caption{ANMF-RAW average runtime in seconds}
+	\label{tab:anmf_raw_runtime}
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		ID & rank 30 & rank 40 & rank 45 & rank 60 & rank 75 \\ \hline
+		$00$ & $63.378$s & $65.913$s & $67.082$s & $71.684$s & $75.839$s \\	
+		\hline
+	\end{tabular}
+\end{table}
+
+Interestingly enough, sample ID 03 notices the largest improvement despite being the more complex of the four, but when listening to the decompressed audio, it still sounds quite distorted and noticeable. Another looming issue is that at that rank the size of the compressed file approaches the original filesize, so we will need to lower the rank and try a lower chunk size instead.
+
+To calculate the bitrate of ANMF-RAW, we must take into account the chunk size and the rank of the NMF approximation and then use Equation \ref{equ:nmf_size}. There is some overhead for the metadata, but as it spans only a few bytes it will be disregarded. The bitrate of ANMF-RAW with a chunk size of $m \times n$ and rank $r$ can be calculated as:
+
+\begin{align}
+bitrate^R = r(m+n) \cdot \frac{sampleRate}{mn} \cdot bitsPerValue \cdot channelCount
+\end{align}
+
+Therefore, for a chunk $1152 \times 200$ with rank 75, we get:
+
+\begin{align}
+bitrate^R = 75 \cdot (1152 + 200) \cdot \frac{44100}{1152 \cdot 200} \cdot 32 \cdot 2 = 1242150
+\end{align}
+
+Our target is 1411 kbps and our compression with 1242 kbps is judged as "annoying" by GstPEAQ. We will try lowering the chunk size and rank both to see if it has an effect. It was mentioned in Section \ref{sec:mp3} that it can compress music by up to a factor of 12 without noticeable loss in quality. Here, with this method, we are going to aim for at least around half that.
+
+We take a rank of 40 and a target bitrate of 750 kbps. We pick e.g. $600$ for $m$ and solve the equation above, obtaining $n = 200$. However, when trying out these new parameters, the ODG barely changed from the previous shape, and further testing of this method was thus stopped due to unsatisfactory results.
 
 \subsection{ANMF-MDCT}
 .. TODO experiment with parameters and calculate bitrate ..
@@ -76,4 +152,5 @@ There's a total of four example audio files in WAV format that will be used for 
 .. TODO experiment with parameters and calculate bitrate ..
 
 \subsection{Comparison}
+.. TODO calculate bitrate for the wav files ..
 .. TODO compare the "best" from the previous 3 vs MP3/Opus ..
