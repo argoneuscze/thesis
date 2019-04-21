@@ -10,31 +10,32 @@ In the real world, these sound waves are generally composed of many different ki
 \end{figure}
 
 \section{Notation}
-Below is a summary of the notation this chapter will be using.
+Please see Table \ref{tab:audio_notation} for the notation used throughout this thesis.
 
 \begin{table}[htbp]\caption{Digital audio notation}
-\begin{tabular}{r l}
-$t$ & symbol representing a time value in seconds \\
-$\tau$ & symbol representing a "slow" time, time index with a lower resolution than $t$ \\
-$\xi$ & symbol representing a frequency value in hertz \\
-$F_s$ & symbol representing a sampling rate of an audio signal \\
-$z$ & symbol representing a complex number \\
-$\phi(z)$ & symbol representing the phase of a complex number \\
-$|z|$ & symbol representing the magnitude of a complex number \\
-$Q(x)$ & function representing a uniform quantizer \\
-$\Delta$ & symbol representing the step size of a uniform quantizer \\
-$F(x)$ & function representing $\mu$-law compression \\
-$x(t)$ & function representing the amplitude of a continuous signal at a time $t$ \\
-$x_n$ & sequence representing the amplitude of a discrete signal indexed by $n$ \\
-$w(t)$ & continuous windowing function at a time $t$ \\
-$w_n$ & discrete windowing function indexed by $n$ \\
-%$X(\xi)$ & function representing the frequency component of a signal for a frequency $\xi$ \\
-$S(\xi)$ & the Fourier transform of a continuous signal \\
-$S_k$ & the discrete Fourier transform of a discrete signal \\
-$S(\tau, \xi)$ & the short-time Fourier transform of a continuous signal \\
-$S_{k, \xi}$ & the discrete short-time Fourier transform of a discrete signal \\
-$M_k$ & the Modified discrete cosine transform of a discrete signal
-\end{tabular}
+	\label{tab:audio_notation}
+	\begin{tabular}{r l}
+		$t$ & symbol representing a time value in seconds \\
+		$\tau$ & symbol representing a "slow" time, time index with a lower resolution than $t$ \\
+		$\xi$ & symbol representing a frequency value in hertz \\
+		$F_s$ & symbol representing a sampling rate of an audio signal \\
+		$z$ & symbol representing a complex number \\
+		$\phi(z)$ & symbol representing the phase of a complex number \\
+		$|z|$ & symbol representing the magnitude of a complex number \\
+		$Q(x)$ & function representing a uniform quantizer \\
+		$\Delta$ & symbol representing the step size of a uniform quantizer \\
+		$F(x)$ & function representing $\mu$-law compression \\
+		$x(t)$ & function representing the amplitude of a continuous signal at a time $t$ \\
+		$x_n$ & sequence representing the amplitude of a discrete signal indexed by $n$ \\
+		$w(t)$ & continuous windowing function at a time $t$ \\
+		$w_n$ & discrete windowing function indexed by $n$ \\
+		$X(\xi)$ & function representing the frequency component of a signal for a frequency $\xi$ \\
+		$S(\xi)$ & the Fourier transform of a continuous signal \\
+		$S_k$ & the discrete Fourier transform of a discrete signal \\
+		$S(\tau, \xi)$ & the short-time Fourier transform of a continuous signal \\
+		$S_{k, \xi}$ & the discrete short-time Fourier transform of a discrete signal \\
+		$M_k$ & the Modified discrete cosine transform of a discrete signal
+	\end{tabular}
 \end{table}
 
 \section{Important terms}
