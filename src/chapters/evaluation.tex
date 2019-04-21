@@ -143,12 +143,53 @@ bitrate^R = 75 \cdot (1152 + 200) \cdot \frac{44100}{1152 \cdot 200} \cdot 32 \c
 
 Our target is 1411 kbps and our compression with 1242 kbps is judged as "annoying" by GstPEAQ. We will try lowering the chunk size and rank both to see if it has an effect. It was mentioned in Section \ref{sec:mp3} that it can compress music by up to a factor of 12 without noticeable loss in quality. Here, with this method, we are going to aim for at least around half that.
 
-We take a rank of 40 and a target bitrate of 750 kbps. We pick e.g. $600$ for $m$ and solve the equation above, obtaining $n = 200$. However, when trying out these new parameters, the ODG barely changed from the previous shape, and further testing of this method was thus stopped due to unsatisfactory results.
+We take a rank of 40 and a target bitrate of 750 kbps. We pick e.g. $600$ for $m$ and solve the equation above, obtaining $n \approx 200$. However, when trying out these new parameters, the ODG barely changed from the previous shape, and further testing of this method was thus stopped due to unsatisfactory results.
 
 \subsection{ANMF-MDCT}
-.. TODO experiment with parameters and calculate bitrate ..
+For MDCT we fix the frame size to 1152 for a good balance between frequency resolution and storage necessary. As seen in Figure \ref{fig:anmf_mdct_cost_func}, the approximation converges in the same manner as ANMF-RAW (using a chunk size of 200 and a rank of 40), but the values are much smaller. We will go with 3000 iterations as before, though, to get more accurate results.
+
+\begin{figure}[ht]
+	\caption[ANMF-MDCT cost function]{The value of the cost function per iteration during NMF in ANMF-MDCT at rank $= 40$.}
+	\label{fig:anmf_mdct_cost_func}
+	\centering
+	\includegraphics[width=\textwidth]{anmf_mdct_cost_func.png}
+\end{figure}
+
+Learning a lesson from the ANMF-RAW experiments, it's worth figuring out whether ANMF-MDCT is even practical at all. To do that, we need to be able to calculate the bitrate of ANMF-MDCT first. Assuming rank $r$, frame size $S_f$ and chunk size $S_c$, our bitrate is:
+
+\begin{align}
+bitrate^M &= 2r(\frac{S_f}{2} + S_c) \cdot \frac{sampleRate}{S_fS_c} \cdot bitsPerValue \cdot channelCount
+\end{align}
+
+And as before, our initial goal is a target bitrate of 750 kbps. To achieve that, we either use a higher rank and lower chunk size, or vice versa.
+
+First, I tried to fix the rank to a relatively high value, specifically $r = 60$. If we fill the known values into the equation and solve for $S_c$, we obtain a chunk size of $S_c \approx 371$. Similarly, if we go with a small chunk size, e.g. $S_c = 100$, we obtain a rank of $r \approx 23$.
+
+However, as we can see in Table \ref{tab:anmf_mdct_rank}, the ODG values are less than usable (and it sounds terrible to my ears as well). This seems to be mostly due to the fact that the phase data contained in the MDCT coefficients is very sensitive to inaccuracies and throws the signal off.
+
+Out of curiosity, I tried increasing the frame size as well, but this only led to the signal being unrecognizable and there doesn't seem to be a good reason to do it in the first place.
+
+\begin{table}[htbp]\caption{ANMF-MDCT rank experiment results}
+	\label{tab:anmf_mdct_rank}
+	\centering
+	\begin{tabular}{|c|c|c|}
+		\hline
+		ID & $r = 23, S_c = 100$ & $r = 60, S_c = 371$ \\ \hline
+		$00$ & $-3.910$ & $-3.911$ \\
+		$01$ & $-3.913$ & $-3.913$ \\
+		$02$ & $-3.909$ & $-3.910$ \\
+		$03$ & $-3.878$ & $-3.877$ \\		
+		\hline
+	\end{tabular}
+\end{table}
+
+Due to the fact that ANMF-MDCT did not produce usable results at a comparatively high bitrate, it will not be tested further.
 
 \subsection{ANMF-STFT}
+ANMF-STFT seemed to produce the best results during preliminary testing when I was implementing the codec, so given that and the large amount of parameters, this method will be tested thoroughly.
+
+.. TODO variable bitrate, find average number of bits ..
+
 .. TODO experiment with parameters and calculate bitrate ..
 
 \subsection{Comparison}
