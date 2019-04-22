@@ -17,6 +17,8 @@ One of the more prominent open-source solutions is GstPEAQ, which according to i
 \section{GstPEAQ}
 GstPEAQ is a plugin for GStreamer \cite{gstreamer_2016} (a pipeline-based multimedia framework) and its source code is freely available at \cite{gstpeaq_impl}. It implements both the Basic and Advanced mode of PEAQ as specified in \cite{peaq_2006}, however as the standard is under-specified, educated guesses must be taken at points.
 
+It's also important to mention that I could not get the Advanced mode to work without errors, and as such testing will be performed in Basic mode only.
+
 And just like PEAQ, the algorithm's main output is a value known as \emph{Objective Difference Grade} (ODG), which evaluates the perceptible impairment (quality difference) between the provided audio and the reference audio. It uses various psychoacoustic "features" of the signal to determine the grade, the details of which won't be covered here - please refer to either paper for specifics.
 
 The ODG scale contains real values from $0$ to $-4$, ranging from imperceptible difference to very annoying for the human ear. Please refer to Table \ref{tab:odg_scale} to see the full scale.
@@ -199,7 +201,7 @@ For baseline parameters that seemed to work well, we choose frame size $S_f = 11
 
 Calculating the bitrate here is going to be a bit different. Since we use Huffman coding, the bitrate will vary, since each value uses a different amount of bits, but we can still estimate it.
 
-To estimate the "average" bitrate, we will take the Huffman table and interpret it as a random variable, specifically $X_P$ for the phase spectrogram and $X_H$ for the coefficient matrix of the magnitude spectrogram. For the output, we take the required amount of bits to encode a value. For the probability distribution of these values, we can use the data we obtained before as seen in Figures \ref{fig:stft_phase_quant_freq} and \ref{fig:stft_quant_freq}. We then find the expected values $E[X_P]$ and $E[X_H]$ for each of them.
+To estimate the "average" bitrate, we will take the Huffman table and interpret it as a random variable, specifically $X_P$ for the phase spectrogram and $X_H$ for the coefficient matrix of the magnitude spectrogram. As its output, we'll use the amount of bits necessary to encode a value. For the probability distribution of these values, we can use the data we obtained before as seen in Figures \ref{fig:stft_phase_quant_freq} and \ref{fig:stft_quant_freq}. We then find the expected values $E[X_P]$ and $E[X_H]$ for each of them.
 
 The expected value $E[X]$ of a discrete random variable $X$ is simply put an average of the possible values weighted by their respective probabilities. Formally, it is defined as \cite{Ross1972IntroductionTP}:
 
@@ -209,7 +211,7 @@ E[X] = \sum_{i}x_ip_i
 
 By applying this model to the Huffman tables, we find that $E[X_P] \approx 3.072$ bits, and $E[X_H] \approx 2.952$ bits. We can then proceed with bitrate calculation.
 
-To calculate the bitrate of ANMF-STFT, it will be easiest to calculate the bits necessary for the phase matrix and the coefficient matrix separately, and then add them together.
+To calculate the bitrate of ANMF-STFT, it will be easiest to calculate the bits necessary for the phase matrix and the coefficient matrix separately, and then add them together. The equations are:
 
 For the phase matrix:
 
