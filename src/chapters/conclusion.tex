@@ -1,9 +1,21 @@
-.. what went right ..
+The point of this thesis was to design and implement an audio codec with the ultimate goal of audio compression. While this goal was technically met, it leaves much to be desired.
 
+In total, three different methods were designed and implemented:
 
-.. what went wrong ..
+\begin{description}
+	\item[ANMF-RAW] compresses audio using NMF in the time domain directly
+	\item[ANMF-MDCT] compresses audio using NMF in the frequency domain via modified discrete cosine transform
+	\item[ANMF-STFT] compresses audio using NMF in the frequency domain via short-time Fourier transform
+\end{description}
 
+Out of these three methods, only ANMF-STFT ended up being usable in practice. However, similarly to the research it was inspired by, I ended up having a large portion of data in the form of a STFT phase matrix that wasn't feasibly compressible given current knowledge of this particular topic.
 
-.. what could be improved ..
-add psychoacoustics
-try compressing LPC/SILK
+In the case of both ANMF-RAW and ANMF-MDCT, the data is far too fragile to be approximated without carefully crafted constraints, in which case a proper quantization (similar to MP3 and Opus) will yield far more reliable results than an approximation, i.e. NMF.
+
+The main output of this work is therefore a command line tool capable of compressing arbitrary audio in WAV format to a third of its size, but it is still no match for contemporary codecs such as MP3 or Opus, which are capable of reducing the bitrate by a factor of up to twelve, with far less noticeable quality loss.
+
+In its current form, it is not applicable to real-time use, but if the file structure is altered somewhat, it's definitely possible. It would require the data from each channel to be interweaved similar to a WAV file, so that it can be read sequentially as a stream of frames. Decompression is not a problem, as that boils down to simple matrix multiplication for the most part, which is not an expensive process given today's technology.
+
+One thing that wasn't explored in-depth in terms of implementation was the application of psychoacoustics, to further trim "unnecessary" sounds contained in the signal. While this is most likely feasible and would save some bytes, there is already a noticeable quality loss even when trying to preserve as much information as possible, and as such application of psychoacoustics would not make this codec any more competitive to its counterparts, which are able to compress audio without any apparent distortion.
+
+Considering the low amount of works exploring this particular topic, I believe this thesis will serve as a decent reference for when somebody else may stumble across the same problem. It's also worth mentioning that this might be the first public implementation of this kind, and as such it might help the understanding of the methodology behind the process and possibly lead to improvement in the future.

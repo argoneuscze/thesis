@@ -107,7 +107,7 @@ In Table \ref{tab:anmf_raw_rank}, you can see the results of changing the rank o
 	\centering
 	\begin{tabular}{|c|c|c|c|c|c|}
 		\hline
-		ID & rank 30 & rank 40 & rank 45 & rank 60 & rank 75 \\ \hline
+		ID & $r=30$ & $r=40$ & $r=45$ & $r=60$ & $r=75$ \\ \hline
 		$00$ & $-3.873$ & $-3.830$ & $-3.811$ & $-3.749$ & $-3.650$ \\
 		$01$ & $-3.908$ & $-3.902$ & $-3.895$ & $-3.861$ & $-3.844$ \\
 		$02$ & $-3.868$ & $-3.850$ & $-3.837$ & $-3.800$ & $-3.759$ \\
@@ -216,7 +216,7 @@ To calculate the bitrate of ANMF-STFT, it will be easiest to calculate the bits 
 For the phase matrix:
 
 \begin{align}
-bits^{PHASE}
+bitrate^{PHASE}
 &= E[X_P] \cdot \frac{S_f}{2} \cdot \frac{F_s}{\frac12 S_f} \\
 &= E[X_P] \cdot F_s
 \end{align}
@@ -226,23 +226,142 @@ For the magnitude matrix:
 \begin{align}
 bits^W &= r \cdot S_c \cdot 32 \\
 bits^H &= r \cdot \frac{S_f}{2} \cdot E[X_H] \\
-bits^{MAG} &= (bits^W + bits^H) \cdot \frac{F_s}{\frac12 S_fS_c} \\
+bitrate^{MAG} &= \left( bits^W + bits^H \right) \cdot \frac{F_s}{\frac12 S_fS_c} \\
 &= \left( r \cdot S_c \cdot 32 + r \cdot \frac{S_f}{2} \cdot E[X_H] \right) \cdot \frac{F_s}{\frac12 S_fS_c} \\
-&= r(32 \cdot S_c + \frac{S_f}{2} \cdot E[X_H]) \cdot \frac{F_s}{\frac12 S_fS_c}
+&= r \left( 32 \cdot S_c + \frac{S_f}{2} \cdot E[X_H] \right) \cdot \frac{F_s}{\frac12 S_fS_c} \label{equ:anmf_stft_mag_bitrate}
 \end{align}
 
 And finally:
 
 \begin{align}
-bitrate^{STFT} &= (bits^{PHASE} + bits^{MAG}) \cdot channelCount \\
-&= (E[X_P] \cdot F_s + r(32 \cdot S_c + \frac{S_f}{2} \cdot E[X_H]) \cdot \frac{F_s}{\frac12 S_fS_c}) \cdot channelCount \\
-&= \left( \frac{E[X_H] \cdot r}{S_c} + \frac{64 \cdot r}{S_f} + E[X_P] \right) \cdot F_s \cdot channelCount
+bitrate^{STFT} &= (bitrate^{PHASE} + bitrate^{MAG}) \cdot channelCount \\
+&= \left[ E[X_P] \cdot F_s + r \left( 32 \cdot S_c + \frac{S_f}{2} \cdot E[X_H] \right) \cdot \frac{F_s}{\frac12 S_fS_c} \right] \cdot channelCount \\
+&= \left( \frac{E[X_H] \cdot r}{S_c} + \frac{64 \cdot r}{S_f} + E[X_P] \right) \cdot F_s \cdot channelCount \label{equ:anmf_stft_bitrate}
 \end{align}
 
-Substituting the variables for our reference values, we end up with a bitrate of $\sim 487$ kbps, which is lower than the previous methods, but at the same time, subjectively speaking, it actually sounds fairly promising. The next step is to stabilize this bitrate while experimenting with the variables and measuring the quality. Once we find out the most influencing factors and end up with satisfactory audio quality, we can try lowering the bitrate further to try and match existing codecs.
+Substituting the variables for our reference values, we end up with a bitrate of $\sim 487$ kbps, which is lower than the previous methods, but at the same time, subjectively speaking, it actually sounds fairly promising.
 
-.. TODO experiment, tables, ODG, etc. ..
+However, upon closer inspection of the equations an alarming realization sets in. If we calculate the bitrate of the phase spectrogram, we find out it equals $3.072 \cdot 44100 = 135475.2$. This means is that the phase spectrogram alone is taking up roughly 135 kbps (per channel!), which is already more than the average MP3 file, and we are already compressing it with a total of only 3 bits per value. We run into the issue highlighted in \cite{nikunen_2010}, that being that there doesn't seem to be a good way to compress only the phase spectrogram. As mentioned earlier, applying NMF to the phase spectrogram does not work and produces barely recognizable sounds.
+
+Regardless, I'm at least going to experiment on what I still can. The next step is to stabilize this bitrate while experimenting with the variables and measuring the quality. Once we find out the most influencing factors and end up with satisfactory audio quality, we can try lowering the bitrate further to try and match existing codecs.
+
+\begin{table}[htbp]\caption{ANMF-STFT rank experiment results}
+	\label{tab:anmf_stft_rank}
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		ID & $r=30$ & $r=40$ & $r=50$ & $r=60$ & $r=70$ \\ \hline
+		$00$ & $-3.529$ & $-3.217$ & $-3.041$ & $-2.838$ & $-2.768$ \\
+		$01$ & $-2.140$ & $-1.884$ & $-1.714$ & $-1.658$ & $-1.499$ \\
+		$02$ & $-3.816$ & $-3.758$ & $-3.696$ & $-3.640$ & $-3.576$ \\
+		$03$ & $-2.491$ & $-1.282$ & $-1.081$ & $-1.033$ & $-0.806$	\\
+		\hline
+	\end{tabular}
+\end{table}
+
+Looking at Table \ref{tab:anmf_stft_rank}, we can notice that by increasing the rank, the ODG gets lower. However, we can't increase the rank ad infinitum, since any increase means two things:
+
+\begin{enumerate}
+	\item the required bitrate increases
+	\item the required number of NMF iterations increases
+\end{enumerate}
+
+In short, the higher the rank, the more space it will take while also drastically increasing the needed computation time. Using Equation \ref{equ:anmf_stft_mag_bitrate} and plotting the function (Figure \ref{fig:anmf_stft_bitrate_rank}), we find that the bitrate grows linearly with the rank. At rank 60, we are already at a large value of $\sim162$ kbps.
+
+\begin{figure}[ht]
+	\caption[ANMF-STFT rank versus bitrate]{Bitrate (kbps) per channel in relation to NMF rank for $S_c = 500$.}
+	\label{fig:anmf_stft_bitrate_rank}
+	\centering
+	\includegraphics[width=\textwidth]{anmf_stft_bitrate_rank.png}
+\end{figure}
+
+Next up, I will experiment with the chunk size keeping the other values as reference values.
+
+\begin{table}[htbp]\caption{ANMF-STFT chunk size experiment results}
+	\label{tab:anmf_stft_chunk_size}
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		ID & $S_c=100$ & $S_c=250$ & $S_c=400$ & $S_c=550$ & $S_c=700$ \\ \hline
+		$00$ & $-2.598$ & $-3.170$ & $-3.211$ & $-3.272$ & $-3.291$ \\
+		$01$ & $-1.149$ & $-1.612$ & $-1.892$ & $-1.925$ & $-1.877$ \\
+		$02$ & $-3.495$ & $-3.685$ & $-3.769$ & $-3.758$ & $-3.772$ \\
+		$03$ & $-1.303$ & $-1.322$ & $-1.415$ & $-1.681$ & $-2.163$	\\
+		\hline
+	\end{tabular}
+\end{table}
+
+In Table \ref{tab:anmf_stft_chunk_size}, we can see that the smaller the chunk size, the better the quality. This makes sense, since if the chunk is smaller, the input matrix to NMF is also smaller, which makes it easier to converge, but at the same time increases the bitrate. Again, by using Equation \ref{equ:anmf_stft_mag_bitrate} and plotting it for $S_c$ (Figure \ref{fig:anmf_stft_bitrate_chunk}), we can notice a certain trend. Unlike rank, the chunk size changes the bitrate in an exponential manner, so while lower is better, we need to be careful.
+
+\begin{figure}[ht]
+	\caption[ANMF-STFT chunk size versus bitrate]{Bitrate (kbps) per channel in relation to chunk size for $r = 40$.}
+	\label{fig:anmf_stft_bitrate_chunk}
+	\centering
+	\includegraphics[width=\textwidth]{anmf_stft_bitrate_chunk.png}
+\end{figure}
+
+Between the experiments with rank and chunk size, I have decided to go for a compromise. To strike a balance between quality and bitrate, experiments from here on will use rank $r = 50$ and chunk size $S_c = 250$.
+
+Finally, we move on to the last two parameters: $\mu_W$ and $\mu_H$. For results, please refer to Tables \ref{tab:anmf_stft_muw} and \ref{tab:anmf_stft_muh}.
+
+\begin{table}[htbp]\caption{ANMF-STFT $\mu_W$ experiment results}
+	\label{tab:anmf_stft_muw}
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		ID & $\mu_W = 10^2$ & $\mu_W = 10^3$ & $\mu_W = 10^4$ & $\mu_W = 10^5$ & $\mu_W = 10^6$ \\ \hline
+		$00$ & $-2.932$ & $-2.828$ & $-2.862$ & $-2.872$ & $-2.821$ \\
+		$01$ & $-1.524$ & $-1.483$ & $-1.538$ & $-1.577$ & $-1.583$ \\
+		$02$ & $-3.618$ & $-3.594$ & $-3.532$ & $-3.591$ & $-3.536$ \\
+		$03$ & $-1.057$ & $-1.113$ & $-1.039$ & $-0.995$ & $-1.014$	\\
+		\hline
+	\end{tabular}
+\end{table}
+
+\begin{table}[htbp]\caption{ANMF-STFT $\mu_H$ experiment results}
+	\label{tab:anmf_stft_muh}
+	\centering
+	\begin{tabular}{|c|c|c|c|c|c|}
+		\hline
+		ID & $\mu_H = 10^2$ & $\mu_H = 10^3$ & $\mu_H = 10^4$ & $\mu_H = 10^5$ & $\mu_H = 10^6$ \\ \hline
+		$00$ & $-2.946$ & $-2.863$ & $-2.833$ & $-2.813$ & $-2.883$ \\
+		$01$ & $-2.730$ & $-2.279$ & $-1.573$ & $-1.474$ & $-1.545$ \\
+		$02$ & $-3.405$ & $-3.617$ & $-3.610$ & $-3.566$ & $-3.591$ \\
+		$03$ & $-0.864$ & $-0.950$ & $-1.077$ & $-0.840$ & $-1.161$	\\
+		\hline
+	\end{tabular}
+\end{table}
+
+$\mu_W$ and $\mu_H$ don't really seem to have too much effect, but it appears that the reference values $\mu_W = 10^4$ and $\mu_H = 5$ were pretty accurate in terms of what seems to give the best results. One thing of note is that $mu_H$ has a rather large jump for audio example ID 03 (electronic music). I believe this is due to the fact that it contains sounds of similar frequencies, which doesn't play along well with $\mu$-law companding for lower values of $\mu$.
+
+In conclusion, our final values are frame size $S_f = 1152$, chunk size $S_c = 250$, 1000 NMF iterations with an approximation rank $r = 50$, and for $\mu$-law companding we have $\mu_W = 10^4$ and $\mu_H = 10^5$. If we plug these values into Equation \ref{equ:anmf_stft_bitrate}, we obtain the following bitrate:
+
+\begin{align}
+bitrate^{STFT} &= \left( \frac{2.952 \cdot 50}{250} + \frac{64 \cdot 50}{1152} + 3.072 \right) \cdot 44100 \cdot 2
+&= 568023.68
+\end{align}
 
 \subsection{Comparison}
-.. TODO calculate bitrate for the wav files ..
-.. TODO compare the "best" from the previous 3 vs MP3/Opus ..
+Due to the low quality of ANMF-RAW and ANMF-MDCT, they will be omitted from comparison as it's not deemed necessary.
+
+Our best lossy audio compression, ANMF-STFT, has reached a bitrate of $\sim 568$ kbps, which is about four times the bitrate of the average MP3 file, and while the quality is "good enough", there are noticeable issues with it. Furthermore, experiments have shown that this form of compression does not seem to particularly excel at any specific kind of audio, though from my personal listening it was usable for speech (ID 00) and clear piano sounds (ID 01). While the ODG for music (ID 04) was not too high, the difference was noticeable enough to convince a user to turn to another format.
+
+For comparison, we will use MP3 with a target bitrate of 320 kbps, and for Opus the target bitrate will be 256 kbps. For both of these, those bitrates are more or less the highest practically used values and they were picked to try and somewhat match the bitrate of ANMF-STFT.
+
+To encode and decode the WAV files into and from the respective formats, certain tools were used. For MP3, I used \verb|LAME| \cite{mp3_lame}, and for Opus, I used \verb|opus-tools| \cite{opus_tools}. Afterwards, the ODG was measured using GstPEAQ. Please refer to Table \ref{tab:anmf_comparison} for the results.
+
+\begin{table}[htbp]\caption{ANMF-STFT versus MP3/Opus}
+	\label{tab:anmf_comparison}
+	\centering
+	\begin{tabular}{|c|c|c|}
+		\hline
+		ID & 320 kbps MP3 & 256 kbps Opus \\ \hline
+		$00$ & $-0.025$ & $-0.088$ \\
+		$01$ & $-0.052$ & $0$ \\
+		$02$ & $-0.044$ & $0$ \\
+		$03$ & $0$ & $0$ \\
+		\hline
+	\end{tabular}
+\end{table}
+
+As you can see, there is no contest. Both of the reference codecs perform much better than ANMF-STFT at a far lower bitrate.
