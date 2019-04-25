@@ -6,15 +6,14 @@ Lossy compression implies that there will be loss of data, and while this is tru
 
 This work focuses on lossy audio compression, therefore only lossy codecs will be considered for comparison.
 
-\section{Overview}
-
-\section{State of the art}
+\section{Lossy audio compression}
+\subsection{State of the art}
 \label{sec:stateoftheart}
 Due to its qualities of efficiently compacting energy and mitigating artifacts at block boundaries, MDCT is the most commonly used transformation in modern lossy audio coding, and is employed in the most popular audio formats including MP3, Opus, Vorbis or AAC.
 
 In this section, I will elaborate on some of the more popular ones to get an idea of what considerations go into writing a modern audio codec. They are also the ones that will be used for comparison with my own encoding scheme.
 
-\subsection{MP3}
+\subsubsection{MP3}
 \label{sec:mp3}
 \begin{figure}[ht]
 	\caption[MP3 encoding scheme]{The MP3 encoding scheme, simplified.}
@@ -35,7 +34,7 @@ The signal is also analyzed using the Fourier transformation, which gives us fre
 
 Once we have the scaled and quantized data, we use the Huffman encoding to losslessly compress these values, and format this output into the final bitstream, encoding our audio.
 
-\subsection{Opus (CELT)}
+\subsubsection{Opus (CELT)}
 The Opus codec has been standardized fairly recently, in 2012 \cite{rfc6716} compared to other widespread audio codecs. Opus was created from two core technologies - Skype's SILK codec based on linear prediction, and Xiph.Org's CELT codec, based on the MDCT. \cite{opus_celt}
 
 As a result, Opus is capable of performing in three different modes:
@@ -61,7 +60,7 @@ Similar to MP3, Opus CELT works on the basis of quantizing MDCT coefficients, bu
 	\includegraphics[width=\textwidth]{opus_listening_test.png}
 \end{figure}
 
-\section{Compression using NMF}
+\subsection{Compression using NMF}
 This section is separate from the state of the art, as NMF is not really used for audio compression in practice. There is one notable example that will be covered and to an extent implemented here, for more details refer to \cite{nikunen_2010}.
 
 The proposed method uses a metric previously formulated in \cite{Nikunen2010NoisetomaskRM} called \emph{noise-to-mask ratio}, or NMR for short. They successfully apply this metric onto non-negative matrix factorization, establishing a custom cost function to represent NMR and also propose update rules based on Euclidean distance for minimizing this cost function.
@@ -73,4 +72,43 @@ This modified NMF is then used in what the paper refers to as \emph{object-based
 The magnitude spectrogram is then compressed using NMF (+NMR) among other things, whereas the phase information is entropy encoded separately and does not utilize NMF at all.
 
 The conclusion is that while object-based audio coding done this way achieves reasonable bit-rate and quality on the magnitude spectrogram, it is difficult to efficiently encode the phase information and as such the bit-rate of this approach proved to be too high to be usable in practice compared to other, more common, MDCT based methods.
+
+\section{Lossless data compression}
+Despite focusing on lossy compression, there are some parts in this work that will be compressed losslessly. Specifically, certain coefficients will be compressed using Huffman coding, so it's important to define that first.
+
+\subsection{Huffman coding}
+\label{sec:huffman}
+Huffman code refers to an optimal prefix coding scheme often employed for lossless compression. It's used to compress a message that only consists of members from a finite, known beforehand set of symbols. \cite{huffman_1952}
+
+The goal is to create a dictionary that maps each value to a sequence of bits, where none of the sequences is a prefix of another one, which means that there are no ambiguities when decoding a Huffman encoded message, and we do not need to store any information about where one code begins and where it ends.
+
+The main characteristic of a Huffman code is that the more frequent a symbol is, the shorter code it will be assigned. So in the case of a system where a certain symbol is very frequent, a message consisting of mostly those symbols will be compressed greatly, with no loss of data.
+
+\begin{algorithm}[h]
+	\caption{Huffman code compression}
+	\label{alg:huffman}
+	\KwIn{a list of symbols and their probabilities}
+	\KwOut{a Huffman tree}
+	queue $\leftarrow$ new PriorityQueue()\;
+	\ForEach{item x in input}{
+		node $\leftarrow$ new Node()\;
+		node.symbol $\leftarrow$ x.symbol\;
+		node.prob $\leftarrow$ x.probability\;
+		node.leftChild, node.rightChild $\leftarrow$ null\;
+		queue.enqueue(node, node.prob)\;
+	}
+	\While{queue.length $>$ 1}{
+		node1 $\leftarrow$ queue.dequeue()\;
+		node2 $\leftarrow$ queue.dequeue()\;
+		newNode $\leftarrow$ new Node()\;
+		newNode.leftChild $\leftarrow$ node1\;
+		newNode.rightChild $\leftarrow$ node2\;
+		newNode.prob $\leftarrow$ node1.prob + node2.prob\;
+		queue.enqueue(newNode, newNode.prob)\;
+	}
+\end{algorithm}
+
+Algorithm \ref{alg:huffman} describes the compression process, at the end of which we obtain a Huffman tree. By traversing this tree from the root and assigning every left child a $0$ and every right child a $1$ and concatenating these bits as we reach the symbols in the leafs, we obtain the Huffman code for the given symbol. The asymptotic complexity of this algorithm is $\mathcal{O}(n \log n)$, essentially we need $\mathcal{O}(\log n)$ time to determine the highest priority in the queue, and there are $\mathcal{O}(n)$ iterations.
+
+Often, the dictionary itself has to be encoded as well, but as the frequencies are roughly the same for each audio file, the tree can be fixed directly into the implementation.
 

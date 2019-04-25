@@ -278,42 +278,6 @@ In a Huffman table from these frequencies, we then assemble the shortest code to
 	\end{tabular}
 \end{table}
 
-\subsubsection{Huffman encoding}
-\label{sec:huffman}
-Huffman code refers to an optimal prefix coding scheme often employed for lossless compression. It's used to compress a message that only consists of members from a finite, known beforehand set of symbols. \cite{huffman_1952}
-
-The goal is to create a dictionary that maps each value to a sequence of bits, where none of the sequences is a prefix of another one, which means that there are no ambiguities when decoding a Huffman encoded message, and we do not need to store any information about where one code begins and where it ends.
-
-The main characteristic of a Huffman code is that the more frequent a symbol is, the shorter code it will be assigned. So in the case of a system where a certain symbol is very frequent, a message consisting of mostly those symbols will be compressed greatly, with no loss of data.
-
-\begin{algorithm}[h]
-\caption{Huffman code compression}
-\label{alg:huffman}
-\KwIn{a list of symbols and their probabilities}
-\KwOut{a Huffman tree}
-queue $\leftarrow$ new PriorityQueue()\;
-\ForEach{item x in input}{
-	node $\leftarrow$ new Node()\;
-	node.symbol $\leftarrow$ x.symbol\;
-	node.prob $\leftarrow$ x.probability\;
-	node.leftChild, node.rightChild $\leftarrow$ null\;
-	queue.enqueue(node, node.prob)\;
-}
-\While{queue.length $>$ 1}{
-	node1 $\leftarrow$ queue.dequeue()\;
-	node2 $\leftarrow$ queue.dequeue()\;
-	newNode $\leftarrow$ new Node()\;
-	newNode.leftChild $\leftarrow$ node1\;
-	newNode.rightChild $\leftarrow$ node2\;
-	newNode.prob $\leftarrow$ node1.prob + node2.prob\;
-	queue.enqueue(newNode, newNode.prob)\;
-}
-\end{algorithm}
-
-Algorithm \ref{alg:huffman} describes the compression process, at the end of which we obtain a Huffman tree. By traversing this tree from the root and assigning every left child a $0$ and every right child a $1$ and concatenating these bits as we reach the symbols in the leafs, we obtain the Huffman code for the given symbol. The asymptotic complexity of this algorithm is $\mathcal{O}(n \log n)$, essentially we need $\mathcal{O}(\log n)$ time to determine the highest priority in the queue, and there are $\mathcal{O}(n)$ iterations.
-
-Often, the dictionary itself has to be encoded as well, but as the frequencies are roughly the same for each audio file, the tree can be fixed directly into the implementation.
-
 \section{Decoder}
 Similar to the encoder, the decoder simply reverses the encoding process as seen in Figure \ref{fig:design_decoder}. As this process is fairly straightforward for each of the methods, it won't be elaborated on further.
 
