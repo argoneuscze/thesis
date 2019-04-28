@@ -1,15 +1,15 @@
-In today's age of smartphones and other portable electronic devices capable of connecting to the internet, nearly everyone has access to this giant (and still growing) library of various media, including music and other audio. However, to transmit or store all of this data in its raw uncompressed form, a large amount of bandwidth and storage would be required.
+In today's age of smartphones and other portable electronic devices capable of connecting to the internet, nearly everyone has access to a huge library of various media, including music and other audio. However, to transmit or store all of this data in its raw uncompressed form, a large amount of bandwidth and storage would be required. It is for that reason that we must employ some sort of compression.
 
-.. need for compression ..
+Lossy audio codecs such as MP3, AAC, AC3, Vorbis, Opus etc. have been prevalent in this field as they are capable of compressing an audio signal into even a tenth of its size, without a perceivable difference in quality (to our ears, at least).
 
-.. common methods of audio compression ..
+As such, this thesis will look into using Non-negative matrix factorization as a possible method for lossy compression of audio. It has been employed before for audio analysis, but works describing its applications for compression of audio specifically are limited.
 
-.. mp3 opus ..
+First, we will have a look at what even is digital audio and important terms surrounding it. We will explore how it works, how is it recorded and stored in a computer and also what concerns go into analysing and compressing it.
 
-.. this work tries nmf ..
+Then, in chapter 3, non-negative matrix factorization is defined and described. We will talk about what it is, what is it realistically used for, how to use and implement it, and lastly its applications in the field of digital audio.
 
-.. state of art ..
+After that, we finally get to data compression. State of the art lossy audio codecs will be examined along with some lossless encodings that will be necessary later. Existing research into audio compressiong using NMF will also be summarized.
 
-.. then design and implement ..
+In chapters 5 and 6, I design and implement an NMF encoder and decoder (called ANMF). There are three different variants depending on what's being compressed - \emph{ANMF-RAW} for encoding raw audio, and \emph{ANMF-MDCT} along with \emph{ANMF-STFT} for encoding properly pre-processed audio. The file structure along with all the implementational details including used libraries will be described in great detail.
 
-.. measure results ..
+And finally, we take the implementation and evaluate the results. Using GstPEAQ as an objective measuring method, we compare our implementation to some of the reference codecs, namely MP3 and Opus, and draw conclusions from the results.
