@@ -217,7 +217,7 @@ Using these frequencies, we are able to then construct a Huffman coding table (r
 	\includegraphics[width=\textwidth]{stft_phase_quant_freq.png}
 \end{figure}
 
-The magnitude spectrogram is where we actually use NMF. As it is effectively a matrix of signal amplitudes, it's less prone to noticeable quality loss if the values deviate a little. We split the magnitude matrix column-wise into smaller submatrices, e.g. $chunk_size = 500$.
+The magnitude spectrogram is where we actually use NMF. As it is effectively a matrix of signal amplitudes, it's less prone to noticeable quality loss if the values deviate a little. We split the magnitude matrix column-wise into smaller submatrices, e.g. $chunk\_size = 500$.
 
 For each submatrix we then increment it by its lowest value to get rid of negative values and then run basic random-initialized Euclidean-based NMF, obtaining the weight matrix $W$ and coefficient matrix $H$.
 

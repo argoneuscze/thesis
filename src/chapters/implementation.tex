@@ -117,6 +117,7 @@ There are a few instances where a value (or more often, an entire matrix of valu
 
 The design part already describes a simple equation to scale a range of values to the $[0,1]$ range (Equation \ref{equ:scale_01}), but the actual implementation allows scaling from an arbitrary range to an arbitrary range. This function is called is \verb|scale_val| and you can see its code in Listing \ref{lst:scale_val}.
 
+\begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Function for scaling value ranges}, label={lst:scale_val}, language=Python]
 def scale_val(x, old_min, old_max, new_min, new_max):
 	old_range = abs(old_max - old_min)
@@ -124,6 +125,7 @@ def scale_val(x, old_min, old_max, new_min, new_max):
 	val = (((x - old_min) / old_range) * new_range) + new_min
 	return val
 \end{lstlisting}
+\end{minipage}
 
 \subsubsection{Uniform quantization}
 In ANMF-STFT, it's often needed to uniformly quantize a range of values into $N$ levels. To make this easier, a special class \verb|UniformQuantizer| was implemented. It has three parameters:
@@ -189,6 +191,7 @@ There are a few important functions:
 
 In its default settings, it uses the Euclidean cost function (Equation \ref{equ:cost_euc}) and Euclidean updates (Equation \ref{equ:update_euc}), with the initial elements of $W$ and $H$ being randomly initialized from the range $[0, \max(V)]$.
 
+\begin{minipage}{\linewidth}
 \begin{lstlisting}[caption={Python code for the factorize function}, language=Python, label={lst:nmf_fact}]
 def factorize(self):
 	self.initialize(self)
@@ -201,6 +204,7 @@ def factorize(self):
 	last_cost = cost
 	return self.W, self.H
 \end{lstlisting}
+\end{minipage}
 
 \subsection{ANMF-RAW}
 In my implementation of the ANMF-RAW method, there are three parameters that can be changed:
