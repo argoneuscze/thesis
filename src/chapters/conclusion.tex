@@ -8,7 +8,7 @@ In total, three different methods were designed and implemented:
 	\item[ANMF-STFT] compresses audio using NMF in the frequency domain via short-time Fourier transform
 \end{description}
 
-Out of these three methods, only ANMF-STFT ended up being usable in practice. However, similarly to the research it was inspired by, I ended up having a large portion of data in the form of a STFT phase matrix that wasn't feasibly compressible given current knowledge of this particular topic.
+Out of these three methods, only ANMF-STFT ended up being usable in practice. However, similarly to the research it was inspired by, I ended up having a large portion of data in the form of a STFT phase matrix that wasn't feasibly compressible given current knowledge of this particular topic. NMF is ultimately only a small part of the compression and improving the NMF methodology won't reduce the filesize by much.
 
 In the case of both ANMF-RAW and ANMF-MDCT, the data is far too fragile to be approximated without carefully crafted constraints, in which case a proper quantization (similar to MP3 and Opus) will yield far more reliable results than an approximation, i.e. NMF.
 
@@ -18,4 +18,4 @@ In its current form, it is not applicable to real-time use, but if the file stru
 
 One thing that wasn't explored in-depth in terms of implementation was the application of psychoacoustics, to further trim "unnecessary" sounds contained in the signal. While this is most likely feasible and would save some bytes, there is already a noticeable quality loss even when trying to preserve as much information as possible, and as such application of psychoacoustics would not make this codec any more competitive to its counterparts, which are able to compress audio without any apparent distortion.
 
-Considering the low amount of works exploring this particular topic, I believe this thesis will serve as a decent reference for when somebody else may stumble across the same problem. It's also worth mentioning that this might be the first public implementation of this kind, and as such it might help the understanding of the methodology behind the process and possibly lead to improvement in the future.
+Considering the low amount of works exploring this particular topic, I believe this thesis will serve as a decent reference for when somebody else may stumble across the same problem. It's also worth mentioning that this might be the first public implementation for this specific problem, and as such it might help with the understanding of the methodology behind this process and possibly lead to improvement in the future.
